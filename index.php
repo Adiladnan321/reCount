@@ -10,9 +10,9 @@
     <div class="container">
         <br>
         <img src="./logob.png" style="width: 10rem;"><br><br>
-        <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'purchase.php'">Inventory</button><br><br>
+        <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'inventory.php'">Inventory</button><br><br>
         <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'purchase.php'">Purchase</button><br><br>
-        <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'purchase.php'">Sell</button><br><br>
+        <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'sell.php'">Sell</button><br><br>
         <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'purchase.php'">Supplier</button><br><br>
     </div>
 </body>

@@ -1,14 +1,13 @@
 <?php
 
-$hostname = "localhost";
-$dbUser="root";
-$dbPassword="";
-$dbName = "recount";
-$conn = mysqli_connect($hostname,$dbUser,$dbPassword,$dbName);
+$host = 'localhost';
+$username = 'root';
+$password = '';
+$dbname = 'recount';
+$conn = mysqli_connect($host, $username, $password, $dbname);
 
-if(!$conn){
-    die("Something went wrong");
-
+if (!$conn) {
+    die("Connection failed: " . mysqli_connect_error());
 }
 
 ?>
