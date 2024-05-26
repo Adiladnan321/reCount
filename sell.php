@@ -98,10 +98,10 @@
                         <label><input class="form-control" list="customer" name="CustomerID" placeholder="Customer Id"></label>
                         <datalist id="customer">
                             <?php
-                                $sql_data = "SELECT * FROM inventory";
+                                $sql_data = "SELECT * FROM customer";
                                 $result_data = mysqli_query($conn,$sql_data);
                                 while($row = mysqli_fetch_assoc($result_data)){
-                                    echo "<option value='".$row['ProductID']."'>".$row['ProductID']."</option>";
+                                    echo "<option value='".$row['CustomerID']."'>".$row['CustomerID']."</option>";
                                 }
                             ?>
                         </datalist>

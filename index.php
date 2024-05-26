@@ -13,7 +13,9 @@
         <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'inventory.php'">Inventory</button><br><br>
         <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'purchase.php'">Purchase</button><br><br>
         <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'sell.php'">Sell</button><br><br>
-        <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'purchase.php'">Supplier</button><br><br>
+        <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'supplier.php'">Supplier</button><br><br>
+        <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'customer.php'">Customer</button><br><br>
+        <button type="button" class="btn btn-outline-primary btn-lg" onclick="window.location.href = 'invoice.php'">Invoice</button><br><br>
     </div>
 </body>
 </html>
