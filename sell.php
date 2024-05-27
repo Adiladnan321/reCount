@@ -23,11 +23,11 @@
         $productName = $_POST['ProductName'];
         $CustomerID = $_POST['CustomerID'];
         $quantity = $_POST['Quantity'];
-        $unitPrice = $_POST['UnitPrice'];
+        $newUnitPrice = $_POST['UnitPrice'];
         $SaleDate = $_POST['SaleDate'];
         
         // Calculate total amount
-        $amount = $unitPrice * $quantity;
+        $amount = $newUnitPrice * $quantity;
         
         // SQL to check if product exists in inventory
         $sql_check = "SELECT * FROM inventory WHERE ProductID = '$productId'";
@@ -37,6 +37,7 @@
             // Product exists, update inventory
             $row = mysqli_fetch_assoc($result_check);
             $newQuantity = $row['Quantity'] - $quantity;
+            $unitPrice=$row['UnitPrice'];
             // $newUnitPrice = ($row['UnitPrice'] + $unitPrice) / 2; // Assuming average unit price
             $newAmount = $newQuantity * $unitPrice;
             if($newQuantity<0){
@@ -44,7 +45,7 @@
             }
             else{
                 $sql_inventory = "UPDATE inventory SET Quantity = '$newQuantity', Amount = '$newAmount' WHERE ProductID = '$productId'";
-                $sql_purchase = "INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate) VALUES ('$productId', '$productName', '$CustomerID', 'desc', '$quantity', '$unitPrice', '$amount', '$SaleDate')";
+                $sql_purchase = "INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate) VALUES ('$productId', '$productName', '$CustomerID', 'desc', '$quantity', '$newUnitPrice', '$amount', '$SaleDate')";
                 mysqli_query($conn, $sql_inventory);
                 mysqli_query($conn, $sql_purchase);
             }
@@ -136,7 +137,7 @@
             $result = mysqli_query($conn, $sql);
 
             // Display student information in a table
-            echo '<table class="table">';
+            echo '<table class="table table-hover">';
             echo '<tr><th>S.NO</th><th>Product Id</th><th>Product name</th><th>Customer Id</th><th>Desc</th><th>QTY</th><th>Unit Price</th><th>Amt</th><th>Sale Date</th></tr>';
 
             while ($row = mysqli_fetch_assoc($result)) {
