@@ -18,7 +18,7 @@
     require_once 'database.php';
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieving form data
+        // Retrieving form data
         $productId = $_POST['ProductID'];
         $productName = $_POST['ProductName'];
         $supplierId = $_POST['SupplierID'];
@@ -30,30 +30,30 @@
         $amount = $unitPrice * $quantity;
         
         // SQL to check if product exists in inventory
-        $sql_check = "SELECT * FROM inventory WHERE ProductID = '$productId'";
-        $result_check = mysqli_query($conn, $sql_check);
+        $stmt_check = $conn->prepare("SELECT * FROM inventory WHERE ProductID = ?");
+        $stmt_check->bind_param("s", $productId);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
         
-        if (mysqli_num_rows($result_check) > 0) {
+        if ($result_check->num_rows > 0) {
             // Product exists, update inventory
-            $row = mysqli_fetch_assoc($result_check);
+            $row = $result_check->fetch_assoc();
             $newQuantity = $row['Quantity'] + $quantity;
-            // $newUnitPrice = ($row['UnitPrice'] + $unitPrice) / 2; // Assuming average unit price
             $newAmount = $newQuantity * $unitPrice;
-            $sql_inventory = "UPDATE inventory SET Quantity = '$newQuantity', UnitPrice = '$unitPrice', Amount = '$newAmount' WHERE ProductID = '$productId'";
+            $stmt_update = $conn->prepare("UPDATE inventory SET Quantity = ?, UnitPrice = ?, Amount = ? WHERE ProductID = ?");
+            $stmt_update->bind_param("idss", $newQuantity, $unitPrice, $newAmount, $productId);
+            $stmt_update->execute();
         } else {
             // Product does not exist, insert into inventory
-            $sql_inventory = "INSERT INTO inventory (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, ReorderLevel) VALUES ('$productId', '$productName', '$supplierId', 'desc', '$quantity', '$unitPrice', '$amount', 10)";
+            $stmt_insert = $conn->prepare("INSERT INTO inventory (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, ReorderLevel) VALUES (?, ?, ?, 'desc', ?, ?, ?, 10)");
+            $stmt_insert->bind_param("ssiid", $productId, $productName, $supplierId, $quantity, $unitPrice, $amount);
+            $stmt_insert->execute();
         }
         
         // Insert into purchase table
-        $sql_purchase = "INSERT INTO purchase (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, PurchaseDate) VALUES ('$productId', '$productName', '$supplierId', 'desc', '$quantity', '$unitPrice', '$amount', '$purchaseDate')";
-        
-        // Execute queries
-        mysqli_query($conn, $sql_inventory);
-        mysqli_query($conn, $sql_purchase);
-        
-        // Close connection
-        // mysqli_close($conn);
+        $stmt_purchase = $conn->prepare("INSERT INTO purchase (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, PurchaseDate) VALUES (?, ?, ?, 'desc', ?, ?, ?, ?)");
+        $stmt_purchase->bind_param("ssiidis", $productId, $productName, $supplierId, $quantity, $unitPrice, $amount, $purchaseDate);
+        $stmt_purchase->execute();
     }
     ?>
     
@@ -73,13 +73,13 @@
                 <tr>
                     <td>
                         <!-- Product ID -->
-                        <input type="text" class="form-control" name="ProductID" placeholder="Product Id" list="ProductID" required>
-                        <datalist id="ProductID">
-                        <?php
-                                $sql_data="SELECT * FROM inventory";
-                                $result_data=mysqli_query($conn,$sql_data);
-                                while( $row = mysqli_fetch_assoc($result_data) ){
-                                    echo "<option value='".$row['ProductID']."'>".$row['ProductID']."</option>";
+                        <input type="text" class="form-control" name="ProductID" placeholder="Product Id" list="ProductIDList" required>
+                        <datalist id="ProductIDList">
+                            <?php
+                                $sql_data = "SELECT * FROM inventory";
+                                $result_data = mysqli_query($conn, $sql_data);
+                                while ($row = mysqli_fetch_assoc($result_data)) {
+                                    echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductID'] . "</option>";
                                 }
                             ?>
                         </datalist>
@@ -90,13 +90,13 @@
                     </td>
                     <td>
                         <!-- Supplier ID -->
-                        <label><input class="form-control" list="supplier" name="SupplierID" placeholder="Supplier Id"></label>
-                        <datalist id="supplier">
+                        <input type="text" class="form-control" name="SupplierID" placeholder="Supplier Id" list="SupplierIDList" required>
+                        <datalist id="SupplierIDList">
                             <?php
                                 $sql_data = "SELECT * FROM supplier";
-                                $result_data = mysqli_query($conn,$sql_data);
-                                while($row = mysqli_fetch_assoc($result_data)){
-                                    echo "<option value='".$row['SupplierID']."'>".$row['SupplierID']."</option>";
+                                $result_data = mysqli_query($conn, $sql_data);
+                                while ($row = mysqli_fetch_assoc($result_data)) {
+                                    echo "<option value='" . $row['SupplierID'] . "'>" . $row['SupplierID'] . "</option>";
                                 }
                             ?>
                         </datalist>
@@ -107,11 +107,11 @@
                     </td>
                     <td>
                         <!-- Unit Price -->
-                        <input type="text" class="form-control" name="UnitPrice" placeholder="Unit Price">
+                        <input type="number" step="0.01" class="form-control" name="UnitPrice" placeholder="Unit Price" required>
                     </td>
                     <td>
                         <!-- Purchase Date -->
-                        <input type="date" class="form-control" name="PurchaseDate">
+                        <input type="date" class="form-control" name="PurchaseDate" required>
                     </td>
                 </tr>
             </tbody>
@@ -122,37 +122,49 @@
     </form>
     <br><br>
     <h1>Purchase History</h1>
-        <?php
-        session_start();
-// Connect to the database (update credentials)
-            require_once 'database.php';
-            // Retrieve student data from the database
-            $sql = "SELECT * FROM purchase";
-            $result = mysqli_query($conn, $sql);
+    <?php
+    session_start();
+    // Retrieve purchase data from the database
+    $sql = "SELECT * FROM purchase";
+    $result = mysqli_query($conn, $sql);
 
-            // Display student information in a table
-            echo '<table class="table">';
-            echo '<tr><th>S.NO</th><th>Product Id</th><th>Product name</th><th>Supplier Id</th><th>Desc</th><th>QTY</th><th>Unit Price</th><th>Amt</th><th>Purchase Date</th></tr>';
+    // Display purchase information in a table
+    echo '<table class="table table-hover">';
+    echo '<thead>';
+    echo '<tr>';
+    echo '<th>S.NO</th>';
+    echo '<th>Product Id</th>';
+    echo '<th>Product Name</th>';
+    echo '<th>Supplier Id</th>';
+    echo '<th>Description</th>';
+    echo '<th>Quantity</th>';
+    echo '<th>Unit Price</th>';
+    echo '<th>Amount</th>';
+    echo '<th>Purchase Date</th>';
+    echo '</tr>';
+    echo '</thead>';
+    echo '<tbody>';
 
-            while ($row = mysqli_fetch_assoc($result)) {
-                // if($row['phone']!=0){
-                echo '<tr>';
-                echo '<td>' . $row['Sno'] . '</td>';
-                echo '<td>' . $row['ProductID'] . '</td>';
-                echo '<td>' . $row['ProductName'] . '</td>';
-                echo '<td>' . $row['SupplierID'] . '</td>';
-                echo '<td>' . $row['Description'] . '</td>';
-                echo '<td>' . $row['Quantity'] . '</td>';
-                echo '<td>' . $row['UnitPrice'] . '</td>';
-                echo '<td>' . $row['Amount'] . '</td>';
-                echo '<td>' . $row['PurchaseDate'] . '</td>';
-                echo '</tr>';
-            // }
-            }
-            echo '</table>';
+    while ($row = mysqli_fetch_assoc($result)) {
+        echo '<tr>';
+        echo '<td>' . $row['Sno'] . '</td>';
+        echo '<td>' . $row['ProductID'] . '</td>';
+        echo '<td>' . $row['ProductName'] . '</td>';
+        echo '<td>' . $row['SupplierID'] . '</td>';
+        echo '<td>' . $row['Description'] . '</td>';
+        echo '<td>' . $row['Quantity'] . '</td>';
+        echo '<td>' . $row['UnitPrice'] . '</td>';
+        echo '<td>' . $row['Amount'] . '</td>';
+        echo '<td>' . $row['PurchaseDate'] . '</td>';
+        echo '</tr>';
+    }
 
-            mysqli_close($conn);
-        ?>
+    echo '</tbody>';
+    echo '</table>';
+
+    mysqli_close($conn);
+    ?>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-pZt4J9qAwA/V4xODCoT2COVIKCSN5DyQqV3+hMIFlFgSCJTVW6cRB/gaTk5e2lfd" crossorigin="anonymous"></script>
 </body>
 </html>
