@@ -16,6 +16,12 @@
                 <center><h1 style="font-size: 70px;">📈</h1></center>
                 <div class="card-body"><br>
                     <center><h5 class="card-title">Inventory</h5></center>
+                    <center><h5 class="card-title">
+                        <?php 
+                        session_start();
+                        require_once 'database.php';
+                        echo "<div>Total: QR ".$_SESSION['totalVal']."</div>";
+                        ?></h5></center>
                 </div>
             </div>
             <div class="card shadow p-3 border-0" style="width: 18rem;" onclick="window.location.href = 'purchase.php'"><br><br><br>
@@ -45,7 +51,7 @@
             <div class="card shadow p-3 border-0" style="width: 18rem;" onclick="window.location.href = 'sell.php'"><br><br><br>
                 <center><h1 style="font-size: 100px;">📋</h1></center>
                 <div class="card-body"><br>
-                    <center><h5 class="card-title">Sale</h5></center>
+                    <center><h5 class="card-title">Invoice</h5></center>
                 </div>
             </div>
         </div>
