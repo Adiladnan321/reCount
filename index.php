@@ -1,3 +1,7 @@
+<?php 
+    session_start();
+    require_once 'database.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,10 +10,10 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <title>reCount</title>
 </head>
-<body>
-    <div class="container">
+<body style="background-image: url(./logooffstr.png); background-repeat:no-repeat; background-size:100%">
+    <!-- <img src="./logooffstr.png" style="width: 100%;"><br><br> -->
+    <div class="container" style="margin-top: 18rem; margin-left:auto;"><br>
         <br>
-        <img src="./logob.png" style="width: 10rem;"><br><br>
         <div class="row gap-5">
             <div class="card shadow p-3 border-0" style="width: 18rem;" onclick="window.location.href = 'inventory.php'"><br><br>
                 <center><h1 style="font-size: 70px;">📦  💰</h1></center>
@@ -18,9 +22,12 @@
                     <center><h5 class="card-title">Inventory</h5></center>
                     <center><h5 class="card-title">
                         <?php 
-                        session_start();
-                        require_once 'database.php';
-                        echo "<div>Total: QR ".$_SESSION['totalVal']."</div>";
+                        // session_start();
+                        // require_once 'database.php';
+                        $sql_totalVal = "SELECT SUM(Amount) AS TotalValue FROM inventory";
+                        $resultVal = $conn->query($sql_totalVal);
+                        $totalVal = $resultVal->fetch_assoc();
+                        echo "<div>Total: QR ". $totalVal['TotalValue'] ."</div>";
                         ?></h5></center>
                 </div>
             </div>
@@ -48,13 +55,15 @@
                     <center><h5 class="card-title">Customer</h5></center>
                 </div>
             </div>
-            <div class="card shadow p-3 border-0" style="width: 18rem;" onclick="window.location.href = 'sell.php'"><br><br><br>
+            <div class="card shadow p-3 border-0" style="width: 18rem;" onclick="window.location.href = 'invoice.php'"><br><br><br>
                 <center><h1 style="font-size: 100px;">📋</h1></center>
                 <div class="card-body"><br>
                     <center><h5 class="card-title">Invoice</h5></center>
                 </div>
             </div>
-        </div>
+        </div><br><br>
     </div>
+    <footer style="background-color:grey; height:300px">
+    </footer>
 </body>
 </html>

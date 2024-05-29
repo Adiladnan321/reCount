@@ -1,3 +1,7 @@
+<?php 
+    // session_start();
+    require_once 'database.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +19,7 @@
     <h1>Purchase</h1>
     <?php
     // Database connection
-    require_once 'database.php';
+    // require_once 'database.php';
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Retrieving form data

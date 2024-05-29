@@ -1,3 +1,7 @@
+<?php 
+    // session_start();
+    require_once 'database.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +19,7 @@
     <h1>Supplier</h1>
     <?php
     // Database connection
-    require_once 'database.php';
+    // require_once 'database.php';
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Retrieving form data
@@ -100,9 +104,9 @@
     <br><br>
     <h1>Supplier Table</h1>
         <?php
-        session_start();
+        // session_start();
 // Connect to the database (update credentials)
-            require_once 'database.php';
+            // require_once 'database.php';
             // Retrieve student data from the database
             $sql = "SELECT * FROM supplier";
             $result = mysqli_query($conn, $sql);

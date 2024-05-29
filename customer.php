@@ -1,3 +1,7 @@
+<?php 
+    // session_start();
+    require_once 'database.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,7 +19,7 @@
     <h1>Customer</h1>
     <?php
     // Database connection
-    require_once 'database.php';
+    // require_once 'database.php';
 
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitButton'])) {
         // Retrieving form data
@@ -98,7 +102,7 @@
     <br><br>
     <h1>Customers</h1>
     <?php
-    session_start();
+    // session_start();
 
     // Retrieve customer data from the database
     $sql = "SELECT * FROM customer";

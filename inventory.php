@@ -1,3 +1,7 @@
+<?php 
+    // session_start();
+    require_once 'database.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -15,8 +19,8 @@
     <br>
     <h1>Inventory</h1>
     <?php
-    session_start();
-    require_once 'database.php';
+    // session_start();
+    // require_once 'database.php';
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $reorder = $_POST['reorder'];
@@ -37,7 +41,6 @@
     $sql_totalVal = "SELECT SUM(Amount) AS TotalValue FROM inventory";
     $resultVal = $conn->query($sql_totalVal);
     $totalVal = $resultVal->fetch_assoc();
-
     // Display total inventory value
     echo '<br>';
     echo '<h4><strong>Total Inventory Value: </strong>' . $totalVal['TotalValue'] . '</h4><br><br>';
