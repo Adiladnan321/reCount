@@ -14,6 +14,9 @@
             .desk-card {
                 margin-top: 18rem;
             }
+            .mobile-card:hover{
+                background-color: #fafafa;
+            }
         }
         @media (max-width: 576px) {
             .mobile-card {
@@ -48,7 +51,7 @@
 </head>
 <body style="background-image: url(./logooffstr.png); background-repeat:no-repeat; background-size:100%">
     <!-- <img src="./logooffstr.png" style="width: 100%;"><br><br> -->
-    <div class="container mobile-card desk-card"><br>
+    <div class="container desk-card"><br>
         <br>
         <div class="row gap-5">
             <div class="card shadow p-3 border-0 mobile-card" style="width: 18rem;" onclick="window.location.href = 'inventory.php'"><br><br>
