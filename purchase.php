@@ -21,7 +21,7 @@
     // Database connection
     // require_once 'database.php';
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitButton'])) {
         // Retrieving form data
         $productId = $_POST['ProductID'];
         $productName = $_POST['ProductName'];
@@ -47,17 +47,35 @@
             $stmt_update = $conn->prepare("UPDATE inventory SET Quantity = ?, UnitPrice = ?, Amount = ? WHERE ProductID = ?");
             $stmt_update->bind_param("idss", $newQuantity, $unitPrice, $newAmount, $productId);
             $stmt_update->execute();
+            header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+            exit();
         } else {
             // Product does not exist, insert into inventory
             $stmt_insert = $conn->prepare("INSERT INTO inventory (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, ReorderLevel) VALUES (?, ?, ?, 'desc', ?, ?, ?, 10)");
             $stmt_insert->bind_param("ssiid", $productId, $productName, $supplierId, $quantity, $unitPrice, $amount);
             $stmt_insert->execute();
+            header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+            exit();
         }
         
         // Insert into purchase table
         $stmt_purchase = $conn->prepare("INSERT INTO purchase (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, PurchaseDate) VALUES (?, ?, ?, 'desc', ?, ?, ?, ?)");
         $stmt_purchase->bind_param("ssiidis", $productId, $productName, $supplierId, $quantity, $unitPrice, $amount, $purchaseDate);
         $stmt_purchase->execute();
+        
+    }
+    if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteButton'])){
+        $Sno=intval($_POST['Sno']);
+        $stmt_delete=$conn->prepare("DELETE FROM purchase WHERE Sno=?");
+        $stmt_delete->bind_param("i",$Sno);
+        if($stmt_delete->execute()){
+            echo '<div class="alert alert-success" role="alert">Purchase deleted successfully!</div>';
+            header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+            exit();
+        } else {
+            echo '<div class="alert alert-danger" role="alert">Error deleting customer!</div>';
+        }
+        $stmt_delete->close();
     }
     ?>
     
@@ -121,7 +139,7 @@
             </tbody>
         </table>
         <div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary" name="submitButton">Submit</button>
         </div>
     </form>
     <br><br>
@@ -145,13 +163,16 @@
     echo '<th>Unit Price</th>';
     echo '<th>Amount</th>';
     echo '<th>Purchase Date</th>';
+    echo '<th></th>';
     echo '</tr>';
     echo '</thead>';
     echo '<tbody>';
 
     while ($row = mysqli_fetch_assoc($result)) {
         echo '<tr>';
-        echo '<td>' . $row['Sno'] . '</td>';
+        echo '<form action="purchase.php" method="POST" onsubmit="return confirmSubmission()">';
+        // echo '<td>' . $row['Sno'] . '</td>';
+        echo '<td><input type="hidden" value="' . $row['Sno'] . '" name="Sno">'. $row['Sno'] . '</td>';
         echo '<td>' . $row['ProductID'] . '</td>';
         echo '<td>' . $row['ProductName'] . '</td>';
         echo '<td>' . $row['SupplierID'] . '</td>';
@@ -160,6 +181,8 @@
         echo '<td>' . $row['UnitPrice'] . '</td>';
         echo '<td>' . $row['Amount'] . '</td>';
         echo '<td>' . $row['PurchaseDate'] . '</td>';
+        echo '<td><button type="submit" name="deleteButton" class="btn border-0">🗑️</button></td>';
+        echo '</form>';
         echo '</tr>';
     }
 
