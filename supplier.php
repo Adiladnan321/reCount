@@ -21,7 +21,7 @@
     // Database connection
     // require_once 'database.php';
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitButton'])) {
     // Retrieving form data
         $SupplierID = $_POST['SupplierID'];
         $SupplierName = $_POST['SupplierName'];
@@ -30,29 +30,27 @@
         $PhoneNumber = $_POST['PhoneNumber'];
         $Due = $_POST['Due'];
         
+        $stmt_check = $conn->prepare("SELECT * FROM supplier WHERE SupplierID = ?");
+        $stmt_check->bind_param("i", $SupplierID);
+        $stmt_check->execute();
+        $result_check = $stmt_check->get_result();
         
-        // SQL to check if product exists in inventory
-        $sql_check = "SELECT * FROM supplier WHERE SupplierID = '$SupplierID'";
-        $result_check = mysqli_query($conn, $sql_check);
-        
-        if (mysqli_num_rows($result_check) > 0) {
-            echo '<div class="alert alert-danger" role="alert">Supplier Id already exists!</div>';
-            // Product exists, update inventory
-            // $row = mysqli_fetch_assoc($result_check);
-            // $newQuantity = $row['Quantity'] + $quantity;
-            // // $newUnitPrice = ($row['UnitPrice'] + $unitPrice) / 2; // Assuming average unit price
-            // $newAmount = $newQuantity * $unitPrice;
-            // $sql_inventory = "UPDATE inventory SET Quantity = '$newQuantity', UnitPrice = '$unitPrice', Amount = '$newAmount' WHERE ProductID = '$productId'";
+        if ($result_check->num_rows > 0) {
+            echo '<div class="alert alert-danger" role="alert">Suppplier ID already exists!</div>';
         } else {
-            // Product does not exist, insert into inventory
-            $sql_supplier = "INSERT INTO supplier (SupplierID, SupplierName, Origin, Email, PhoneNumber, Due) VALUES ('$SupplierID', '$SupplierName', '$Origin', 'Email', '$PhoneNumber', '$Due')";
-            mysqli_query($conn, $sql_supplier);
+            // Insert new supplier
+            $stmt_supplier = $conn->prepare("INSERT INTO supplier (SupplierID, SupplierName, Origin, Email, PhoneNumber, Due) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt_supplier->bind_param("issssi", $SupplierID, $SupplierName, $Origin, $Email, $PhoneNumber, $Due);
+            if ($stmt_supplier->execute()) {
+                header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+                exit();
+                echo '<div class="alert alert-success" role="alert">Supplier added successfully!</div>';
+                $stmt_supplier->close();
+            } else {
+                echo '<div class="alert alert-danger" role="alert">Error adding Supplier!</div>';
+            }
         }
-        
-        // Execute queries
-        
-        // Close connection
-        // mysqli_close($conn);
+        $stmt_check->close();
     }
     ?>
     
@@ -98,36 +96,70 @@
             </tbody>
         </table>
         <div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" name="submitButton" class="btn btn-primary">Submit</button>
         </div>
     </form>
     <br><br>
     <h1>Supplier Table</h1>
         <?php
-        // session_start();
-// Connect to the database (update credentials)
-            // require_once 'database.php';
             // Retrieve student data from the database
             $sql = "SELECT * FROM supplier";
             $result = mysqli_query($conn, $sql);
 
+            if($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteButton'])){
+                $SupplierID=intval($_POST['SupplierID']);
+                $stmt_delete=$conn->prepare("DELETE FROM supplier WHERE SupplierID=?");
+                $stmt_delete->bind_param("i",$SupplierID);
+                if($stmt_delete->execute()){
+                    header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+                    exit();
+                }
+                else{
+                    echo '<div class="alert alert-danger" role="alert">Error deleting supplier!</div>';
+                }
+                $stmt_delete->close();
+            }
+            if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['dueButton'])){
+                $Due=$_POST['Due'];
+                $SupplierID=$_POST['SupplierID'];
+                $stmt = $conn->prepare("UPDATE supplier SET Due = ? WHERE SupplierID = ?");
+                $stmt->bind_param("ii", $Due, $SupplierID);
+                $stmt->execute();
+                $stmt->close();
+                header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+                exit();
+            }
             // Display student information in a table
-            echo '<table class="table">';
-            echo '<tr><th>Supplier Id</th><th>Supplier Name</th><th>Origin</th><th>email</th><th>Phone Number</th><th>Due (if any)</th></tr>';
+            echo '<table class="table table-hover">';
+            echo '<thead>';
+            echo '<tr>';
+            echo '<th>Supplier Id</th>';
+            echo '<th>Supplier Name</th>';
+            echo '<th>Origin</th>';
+            echo '<th>email</th>';
+            echo '<th>Phone Number</th>';
+            echo '<th>Due (if any)</th>';
+            echo '<th></th>';
+            echo '<th>Action</th>';
+            echo '</tr>';
+            echo '</thead>';
+            echo '<tbody>';
 
             while ($row = mysqli_fetch_assoc($result)) {
-                // if($row['phone']!=0){
                 echo '<tr>';
-                // echo '<td>' . $row['Sno'] . '</td>';
-                echo '<td>' . $row['SupplierID'] . '</td>';
+                echo '<form action="supplier.php" method="POST" onsubmit="return confirmSubmission()">';
+                echo '<td><input type="hidden" value="' . $row['SupplierID'] . '" name="SupplierID">'. $row['SupplierID'] .'</td>';
                 echo '<td>' . $row['SupplierName'] . '</td>';
                 echo '<td>' . $row['Origin'] . '</td>';
                 echo '<td>' . $row['Email'] . '</td>';
                 echo '<td>' . $row['PhoneNumber'] . '</td>';
-                echo '<td>' . $row['Due'] . '</td>';
+                echo '<td><input value="' . $row['Due'] . '" type="text" name="Due" class="form-control border-0>"</td>';
+                echo '<td><button class="btn btn-outline-primary" type="submit" name="dueButton">✔️</button></td>';
+                echo '<td><button type="submit" name="deleteButton" class="btn border-0">🗑️</button></td>';
+                echo '</form>';
                 echo '</tr>';
-            // }
             }
+            echo '</tbody>';
             echo '</table>';
 
             mysqli_close($conn);
