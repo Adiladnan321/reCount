@@ -43,14 +43,15 @@
             $stmt_customer = $conn->prepare("INSERT INTO customer (CustomerID, CustomerName, Origin, Email, PhoneNumber, Due) VALUES (?, ?, ?, ?, ?, ?)");
             $stmt_customer->bind_param("issssi", $CustomerID, $CustomerName, $Origin, $Email, $PhoneNumber, $Due);
             if ($stmt_customer->execute()) {
+                header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+                exit();
                 echo '<div class="alert alert-success" role="alert">Customer added successfully!</div>';
+                $stmt_customer->close();
             } else {
                 echo '<div class="alert alert-danger" role="alert">Error adding customer!</div>';
             }
         }
-        
         $stmt_check->close();
-        $stmt_customer->close();
     }
     ?>
     
@@ -114,6 +115,8 @@
         $stmt_delete->bind_param("i", $CustomerID);
         if ($stmt_delete->execute()) {
             echo '<div class="alert alert-success" role="alert">Customer deleted successfully!</div>';
+            header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+            exit();
         } else {
             echo '<div class="alert alert-danger" role="alert">Error deleting customer!</div>';
         }
@@ -128,6 +131,8 @@
         $stmt->bind_param("ii", $Due, $CustomerID);
         $stmt->execute();
         $stmt->close();
+        header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+        exit();
     }
 
     // Display customer information in a table
@@ -148,7 +153,7 @@
 
     while ($row = mysqli_fetch_assoc($result)) {
         echo '<tr>';
-        echo '<form action="customer.php" method="POST">';
+        echo '<form action="customer.php" method="POST" onsubmit="return confirmSubmission()">';
         echo '<td><input type="hidden" value="' . $row['CustomerID'] . '" name="CustomerID">' . $row['CustomerID'] . '</td>';
         echo '<td>' . $row['CustomerName'] . '</td>';
         echo '<td>' . $row['Origin'] . '</td>';
@@ -168,5 +173,10 @@
     ?>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-pZt4J9qAwA/V4xODCoT2COVIKCSN5DyQqV3+hMIFlFgSCJTVW6cRB/gaTk5e2lfd" crossorigin="anonymous"></script>
+<script>
+    function confirmSubmission() {
+            return confirm("Are you sure!!!");
+        }
+</script>
 </body>
 </html>
