@@ -21,7 +21,7 @@
     // Database connection
     // require_once 'database.php';
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitButton'])) {
     // Retrieving form data
         $productId = $_POST['ProductID'];
         $productName = $_POST['ProductName'];
@@ -42,7 +42,6 @@
             $row = mysqli_fetch_assoc($result_check);
             $newQuantity = $row['Quantity'] - $quantity;
             $unitPrice=$row['UnitPrice'];
-            // $newUnitPrice = ($row['UnitPrice'] + $unitPrice) / 2; // Assuming average unit price
             $newAmount = $newQuantity * $unitPrice;
             if($newQuantity<0){
                 echo '<div class="alert alert-danger" role="alert">Not enough Quantity!</div>';
@@ -57,13 +56,44 @@
             // Product does not exist, insert into inventory
             echo '<div class="alert alert-danger" role="alert">Product Doesnot exists!</div>';
         }
-        
+        header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+        exit();
         // Insert into purchase table
         
         // Execute queries
         
         // Close connection
         // mysqli_close($conn);
+    }
+    if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['deleteButton'])){
+        $Sno=intval($_POST['Sno']);
+        $ProductID=intval($_POST['Quantity']);
+        $Quantity=intval($_POST['Quantity']);
+        $Amount=floatval($_POST['Amount']);
+
+        // Fetch current quantity and amount from inventory
+        $stmt_get_inventory = $conn->prepare("SELECT Quantity, UnitPrice FROM inventory WHERE ProductID=?");
+        $stmt_get_inventory->bind_param("i", $ProductID);
+        $stmt_get_inventory->execute();
+        $result_inventory = $stmt_get_inventory->get_result();
+        $inventory_data = $result_inventory->fetch_assoc();
+
+        $newQuantity = $inventory_data['Quantity'] + $Quantity;
+        $newAmount = $newQuantity * $inventory_data['UnitPrice'];
+
+        $stmt_delete = $conn->prepare("DELETE FROM sale WHERE Sno=?");
+        $stmt_delete->bind_param("i", $Sno);
+
+        $stmt_update_inventory = $conn->prepare("UPDATE inventory SET Quantity=?, Amount=? WHERE ProductID=?");
+        $stmt_update_inventory->bind_param("idi", $newQuantity, $newAmount, $ProductID);
+        
+        if ($stmt_delete->execute() && $stmt_update_inventory->execute()) {
+            echo '<div class="alert alert-success" role="alert">Sell deleted successfully!</div>';
+            header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+            exit();
+        } else {
+            echo '<div class="alert alert-danger" role="alert">Error deleting purchase!</div>';
+        }
     }
     ?>
     
@@ -127,42 +157,60 @@
             </tbody>
         </table>
         <div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" class="btn btn-primary" name="submitButton">Submit</button>
         </div>
     </form>
     <br><br>
     <h1>Sale History</h1>
         <?php
-        // session_start();
-// Connect to the database (update credentials)
-            // require_once 'database.php';
             // Retrieve student data from the database
             $sql = "SELECT * FROM sale";
             $result = mysqli_query($conn, $sql);
 
             // Display student information in a table
             echo '<table class="table table-hover">';
-            echo '<tr><th>S.NO</th><th>Product Id</th><th>Product name</th><th>Customer Id</th><th>Desc</th><th>QTY</th><th>Unit Price</th><th>Amt</th><th>Sale Date</th></tr>';
+            echo '<thead>';
+            echo '<tr>';
+            echo '<th>S.NO</th>';
+            echo '<th>Product Id</th>';
+            echo '<th>Product name</th>';
+            echo '<th>Customer Id</th>';
+            echo '<th>Desc</th>';
+            echo '<th>QTY</th>';
+            echo '<th>Unit Price</th>';
+            echo '<th>Amt</th>';
+            echo '<th>Sale Date</th>';
+            echo '<th></th>';
+            echo '</tr>';
+            echo '</thead>';
+            echo '<tbody>';
 
             while ($row = mysqli_fetch_assoc($result)) {
-                // if($row['phone']!=0){
                 echo '<tr>';
-                echo '<td>' . $row['Sno'] . '</td>';
-                echo '<td>' . $row['ProductID'] . '</td>';
-                echo '<td>' . $row['ProductName'] . '</td>';
-                echo '<td>' . $row['CustomerID'] . '</td>';
-                echo '<td>' . $row['Description'] . '</td>';
-                echo '<td>' . $row['Quantity'] . '</td>';
-                echo '<td>' . $row['UnitPrice'] . '</td>';
-                echo '<td>' . $row['Amount'] . '</td>';
+                echo '<form action="sell.php" method="POST" onsubmit="return confirmSubmission()">';
+                echo '<td><input type="hidden" value="' . $row['Sno'] . '" name="Sno">'. $row['Sno'] . '</td>';
+                echo '<td><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</td>';
+                echo '<td><input type="hidden" value="' . $row['ProductName'] . '" name="ProductName">' . $row['ProductName'] . '</td>';
+                echo '<td><input type="hidden" value="' . $row['CustomerID'] . '" name="CustomerID">'. $row['CustomerID'] . '</td>';
+                echo '<td><input type="hidden" value="' . $row['Description'] . '" name="Description">' . $row['Description'] . '</td>';
+                echo '<td><input type="hidden" value="' . $row['Quantity'] . '" name="Quantity">' . $row['Quantity'] . '</td>';
+                echo '<td><input type="hidden" value="' . $row['UnitPrice'] . '" name="UnitPrice">' . $row['UnitPrice'] . '</td>';
+                echo '<td><input type="hidden" value="' . $row['Amount'] . '" name="Amount">' . $row['Amount'] . '</td>';
                 echo '<td>' . $row['SaleDate'] . '</td>';
+                echo '<td><button type="submit" name="deleteButton" class="btn border-0">🗑️</button></td>';
+                echo '</form>';
                 echo '</tr>';
-            // }
             }
+            echo '</tbody>';
             echo '</table>';
 
             mysqli_close($conn);
         ?>
 </div>
+<script>
+    function confirmSubmission() {
+            return confirm("Are you sure!!!");
+        }
+</script>
 </body>
 </html>
