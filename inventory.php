@@ -74,9 +74,9 @@
         echo '<td><button name="viewButton" class="btn border-0">' . $row['ProductName'] . '</button></td>';
         echo '<td>' . $row['SupplierID'] . '</td>';
         echo '<td>' . $row['Description'] . '</td>';
-        echo '<td>' . $row['Quantity'] . '</td>';
-        echo '<td>' . $row['UnitPrice'] . '</td>';
-        echo '<td>' . $row['Amount'] . '</td>';
+        echo '<td>' . number_format($row['Quantity']) . '</td>';
+        echo '<td>' . number_format($row['UnitPrice']) . '</td>';
+        echo '<td>' . number_format($row['Amount']) . '</td>';
         echo '<td><input type="number" value="' . $row['ReorderLevel'] . '" name="reorder" class="form-control"></td>';
         echo '<td><button name="editButton" class="btn btn-outline-primary">✔️</button></td>';
         echo '</form>';
