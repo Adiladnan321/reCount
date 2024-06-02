@@ -29,6 +29,7 @@
         $quantity = $_POST['Quantity'];
         $newUnitPrice = $_POST['UnitPrice'];
         $SaleDate = $_POST['SaleDate'];
+        $Description=$_POST['Description'];
         
         // Calculate total amount
         $amount = $newUnitPrice * $quantity;
@@ -48,7 +49,7 @@
             }
             else{
                 $sql_inventory = "UPDATE inventory SET Quantity = '$newQuantity', Amount = '$newAmount' WHERE ProductID = '$productId'";
-                $sql_purchase = "INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate) VALUES ('$productId', '$productName', '$CustomerID', 'desc', '$quantity', '$newUnitPrice', '$amount', '$SaleDate')";
+                $sql_purchase = "INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate) VALUES ('$productId', '$productName', '$CustomerID', '$Description', '$quantity', '$newUnitPrice', '$amount', '$SaleDate')";
                 mysqli_query($conn, $sql_inventory);
                 mysqli_query($conn, $sql_purchase);
             }
@@ -104,6 +105,7 @@
                     <th>ProductID</th>
                     <th>Product Name</th>
                     <th>Customer Id</th>
+                    <th>Description</th>
                     <th>Quantity</th>
                     <th>Unit Price</th>
                     <th>Date</th>
@@ -140,6 +142,11 @@
                                 }
                             ?>
                         </datalist>
+                    </td>
+                    <td>
+                        <!-- Description -->
+                        <!-- <input type="text" class="form-control" name="Description" placeholder="Description" required> -->
+                        <textarea type="text" class="form-control" name="Description" placeholder="Description" required></textarea>
                     </td>
                     <td>
                         <!-- Quantity -->
