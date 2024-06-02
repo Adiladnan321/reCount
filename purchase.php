@@ -148,10 +148,11 @@
                     </td>
                     <td>
                         <!-- Unit Price -->
-                                            </td>
-                    <t>
+                        <input type="number" class="form-control" name="UnitPrice" placeholder="Quantity" required>
+                    </td>
+                    <td>
                         <!-- Purchase Date -->
-                        <input type=number_format("date" class=")form-control" name="PurchaseDate" required>
+                        <input type="date" class="form-control" name="PurchaseDate" required>
                     </td>
                 </tr>
             </tbody>
