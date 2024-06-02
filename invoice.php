@@ -95,17 +95,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <br>
     <h1>Invoice</h1>
     <div class="container">
-        <form action="invoice.php" method="POST">
+        <form action="invoice.php" method="POST" name="invoiceForm">
             <div class="row">
                 <div class="col-xs-12">
                     <div class="invoice-title">
                         <h2>Invoice</h2>
                         <h3 class="pull-right">
                             <?php
-                                $sql_sno = "SELECT MAX(InvoiceID) AS max_sno FROM invoice";
+                                $sql_sno = "SELECT MAX(InvoiceID) AS max_InvoiceID FROM invoice";
                                 $result_sno = mysqli_query($conn, $sql_sno);
                                 $row = mysqli_fetch_assoc($result_sno);
-                                $r1 = $row['max_sno'] + 1;
+                                $r1 = $row['max_InvoiceID'] + 1;
                                 echo "Order #" . $r1;
                             ?>
                         </h3>
@@ -191,7 +191,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             </td>
                                             <td class="text-right">
                                                 <!-- Amount -->
-                                                <input type="text" name="Amount[]" class="form-control border-0" readonly>
+                                                <input type="text" name="Amount[]" id="amt[]" class="form-control border-0" readonly>
                                             </td>
                                         </tr>
                                         <tr class="hh">
@@ -206,7 +206,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
                                             <td class="no-line text-center"><strong>Total</strong></td>
-                                            <td class="no-line text-right">$685.99</td>
+                                            <td class="no-line text-right"><input type="number" class="form-control border-0" id="total" readonly></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -216,7 +216,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </div>
             <div>
-                <button type="submit" class="btn btn-primary">Submit</button>
+                <button type="submit" class="btn btn-primary" onclick="printAndSubmit()">Print</button>
             </div>
         </form>
     </div>
@@ -226,7 +226,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     function addRow() {
         const table = document.getElementById("dynamicTable");
         const rowCount = table.rows.length;
-        const newRow = table.insertRow(rowCount - 4); // Append before the subtotal row
+        const newRow = table.insertRow(rowCount - 2); // Append before the subtotal row
         newRow.innerHTML = `
             <td>
                 <input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required>
@@ -245,9 +245,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="number" name="Quantity[]" class="form-control border-0" placeholder="Quantity"/>
             </td>
             <td class="text-right">
-                <input type="number" name="Amount[]" class="form-control border-0" readonly/>
+                <input type="number" name="Amount[]" id="amt[]" class="form-control border-0" readonly/>
             </td>
         `;
     }
+    function printAndSubmit() {
+        // Print the page
+
+        // document.getElementById("total");
+        document.getElementById("invoiceForm").submit();
+        
+        // Submit the form
+        window.print();
+    }
+    // Calculate total value and update the total cell
+    function calculateTotal() {
+        var table = document.getElementById("dynamicTable");
+        var rows = table.rows;
+        var total = 0;
+        
+        for (var i = 1; i < rows.length - 2; i++) {
+            var quantity = parseFloat(rows[i].cells[4].getElementsByTagName("input")[0].value);
+            var unitPrice = parseFloat(rows[i].cells[3].getElementsByTagName("input")[0].value);
+            var amount = quantity * unitPrice;
+            total += amount;
+        }
+        document.getElementById("total").value = total;
+    }
+
+    
+    // Call calculateTotal() whenever a change occurs in the table
+    document.getElementById("dynamicTable").addEventListener("focusout", calculateTotal);
+    document.getElementById("dynamicTable").addEventListener("click", calculateTotal);    
+
 </script>
 </html>
