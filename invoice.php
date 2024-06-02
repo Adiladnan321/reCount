@@ -1,7 +1,85 @@
-<?php 
-    require_once 'database.php';
+<?php
+require_once 'database.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Start transaction
+    $conn->begin_transaction();
+
+    try {
+        // Retrieving form data
+        $productIds = $_POST['ProductID'];
+        $productNames = $_POST['ProductName'];
+        $CustomerID = $_POST['CustomerID'];
+        $quantitys = $_POST['Quantity'];
+        $unitPrices = $_POST['UnitPrice'];
+        $SaleDate = $_POST['SaleDate'];
+        $Descriptions=$_POST['Description'];
+        $totalAmount = 0;
+
+        // Insert sale records and calculate total amount
+        $stmt = $conn->prepare("INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        for ($i = 0; $i < count($productIds); $i++) {
+            $productId = $productIds[$i];
+            $productName = $productNames[$i];
+            $quantity = $quantitys[$i];
+            $unitPrice = $unitPrices[$i];
+            $amount = $quantity * $unitPrice;
+
+            $Description = $Descriptions[$i]; // Static description as per original code
+            $totalAmount += $amount;
+            
+            $stmt->bind_param("isisidds", $productId, $productName, $CustomerID, $Description, $quantity, $unitPrice, $amount, $SaleDate);
+            $stmt->execute();
+        }
+        $stmt->close();
+
+        // Insert invoice record
+        $stmt2 = $conn->prepare("INSERT INTO invoice (CustomerID, InvoiceDate, Amount) VALUES (?, ?, ?)");
+        $stmt2->bind_param("isd", $CustomerID, $SaleDate, $totalAmount);
+        $stmt2->execute();
+        $invoiceId = $stmt2->insert_id; // Get the last inserted invoice ID
+        $stmt2->close();
+
+        // Insert invoice items
+        $stmt1 = $conn->prepare("INSERT INTO invoiceitem (InvoiceID, ProductID, Quantity, UnitPrice, TotalPrice) VALUES (?, ?, ?, ?, ?)");
+        for ($j = 0; $j < count($productIds); $j++) {
+            $productId = $productIds[$j];
+            $quantity = $quantitys[$j];
+            $unitPrice = $unitPrices[$j];
+            $amount = $quantity * $unitPrice;
+
+            $stmt1->bind_param("iiidd", $invoiceId, $productId, $quantity, $unitPrice, $amount);
+            $stmt1->execute();
+        }
+        $stmt1->close();
+
+        // Update inventory
+        $stmt_update_inventory = $conn->prepare("UPDATE inventory SET Quantity = Quantity - ?, Amount = Amount - ? WHERE ProductID = ?");
+        for ($k = 0; $k < count($productIds); $k++) {
+            $productId = $productIds[$k];
+            $quantity = $quantitys[$k];
+            $amount = $quantity * $unitPrices[$k];
+
+            $stmt_update_inventory->bind_param("idi", $quantity, $amount, $productId);
+            $stmt_update_inventory->execute();
+        }
+        $stmt_update_inventory->close();
+
+        // Commit transaction
+        $conn->commit();
+
+        // Redirect to the same page to avoid form resubmission
+        header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+        exit();
+
+    } catch (Exception $e) {
+        // Rollback transaction on error
+        $conn->rollback();
+        echo "Failed to create invoice: " . $e->getMessage();
+    }
+}
 ?>
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -15,81 +93,7 @@
     <br>
     <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
     <br>
-    <h1></h1>
-    <?php
-
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        // Retrieving form data
-        $productIds = $_POST['ProductID'];
-        $productNames = $_POST['ProductName'];
-        $CustomerID = $_POST['CustomerID'];
-        $quantitys = $_POST['Quantity'];
-        $unitPrices = $_POST['UnitPrice'];
-        $SaleDate = $_POST['SaleDate'];
-        $tt=0;
-
-        // Start transaction
-        $conn->begin_transaction();
-
-        try {
-            // Insert invoice
-            $stmt = $conn->prepare("INSERT INTO invoice (CustomerID, InvoiceDate, Amount) VALUES (?, ?, ?)");
-            $stmt->bind_param("isd", $CustomerID, $SaleDate, $tt);
-            $stmt->execute();
-            $invoiceID = $stmt->insert_id;
-            $stmt->close();
-
-            // Insert sale items
-            $stmt = $conn->prepare("INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-            for ($i = 0; $i < count($productIds); $i++) {
-                $productId = $productIds[$i];
-                $productName = $productNames[$i];
-                $quantity = $quantitys[$i];
-                $unitPrice = $unitPrices[$i];
-                $amount = $quantity * $unitPrice;
-                
-                $description = 'Desc'; // Assuming a static description as per the original code
-                $tt += $amount;
-
-                $stmt->bind_param("isisidds", $productId, $productName, $CustomerID, $description, $quantity, $unitPrice, $amount, $SaleDate);
-                $stmt->execute();
-            }
-            $stmt->close();
-
-            // Update invoice with the total amount
-            $stmt2 = $conn->prepare("UPDATE invoice SET Amount = ? WHERE InvoiceID = ?");
-            $stmt2->bind_param("di", $tt, $invoiceID);
-            $stmt2->execute();
-            $stmt2->close();
-
-            // Insert invoice items
-            $stmt1 = $conn->prepare("INSERT INTO invoiceitem (InvoiceID, ProductID, Quantity, UnitPrice, TotalPrice) VALUES (?, ?, ?, ?, ?)");
-            for ($j = 0; $j < count($productIds); $j++) {
-                $productId = $productIds[$j];
-                $quantity = $quantitys[$j];
-                $unitPrice = $unitPrices[$j];
-                $amount = $quantity * $unitPrice;
-
-                $stmt1->bind_param("iiidd", $invoiceID, $productId, $quantity, $unitPrice, $amount);
-                $stmt1->execute();
-            }
-            $stmt1->close();
-
-            // Commit transaction
-            $conn->commit();
-
-            // Redirect to the same page with a success message
-            header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
-            exit();
-        } catch (Exception $e) {
-            // Rollback transaction on error
-            $conn->rollback();
-            echo "Failed to create invoice: " . $e->getMessage();
-        }
-    }
-    ?>
-
-    <br><br>
+    <h1>Invoice</h1>
     <div class="container">
         <form action="invoice.php" method="POST">
             <div class="row">
@@ -148,6 +152,7 @@
                                         <tr>
                                             <td><strong>Id</strong></td>
                                             <td><strong>Item</strong></td>
+                                            <td><strong>Description</strong></td>
                                             <td><strong>Price</strong></td>
                                             <td><strong>Quantity</strong></td>
                                             <td class="text-right"><strong>Totals</strong></td>
@@ -173,35 +178,31 @@
                                                 <input type="text" class="form-control border-0" name="ProductName[]" placeholder="Eg: Chalk">
                                             </td>
                                             <td class="text-center">
+                                                <!-- Description -->
+                                                <textarea type="text" class="form-control border-0" name="Description[]" placeholder="Description"></textarea>
+                                            </td>
+                                            <td class="text-center">
                                                 <!-- Unit Price -->
                                                 <input type="number" class="form-control border-0" name="UnitPrice[]" placeholder="Unit Price">
                                             </td>
                                             <td class="text-center">
+                                                <!-- Quantity -->
                                                 <input type="number" class="form-control border-0" name="Quantity[]" placeholder="Quantity">
                                             </td>
                                             <td class="text-right">
+                                                <!-- Amount -->
                                                 <input type="text" name="Amount[]" class="form-control border-0" readonly>
                                             </td>
                                         </tr>
                                         <tr class="hh">
                                             <td class="thick-line"><button type="button" class="btt" onclick="addRow()">+</button></td>
                                             <td class="thick-line"></td>
+                                            <td class="thick-line"></td>
                                             <td class="thick-line text-center"></td>
                                             <td class="thick-line text-right"></td>
                                         </tr>
                                         <tr>
-                                            <td class="thick-line"></td>
-                                            <td class="thick-line"></td>
-                                            <td class="thick-line text-center"><strong>Subtotal</strong></td>
-                                            <td class="thick-line text-right">$670.99</td>
-                                        </tr>
-                                        <tr>
                                             <td class="no-line"></td>
-                                            <td class="no-line"></td>
-                                            <td class="no-line text-center"><strong>Shipping</strong></td>
-                                            <td class="no-line text-right">$15</td>
-                                        </tr>
-                                        <tr>
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
                                             <td class="no-line text-center"><strong>Total</strong></td>
@@ -225,19 +226,28 @@
     function addRow() {
         const table = document.getElementById("dynamicTable");
         const rowCount = table.rows.length;
-        const columnCount = table.rows[0].cells.length;
-
-        const newRow = table.insertRow(rowCount - 4); // Append to the end of the table
-        let newCell = newRow.insertCell(-1);
-        newCell.innerHTML = `<input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required><datalist id="ProductID"><?php $sql_data="SELECT * FROM inventory"; $result_data=mysqli_query($conn,$sql_data);while($row=mysqli_fetch_assoc($result_data)){echo "<option value='".$row['ProductID']."'>".$row['ProductID']."</option>";}?></datalist>`;
-        newCell = newRow.insertCell(-1);
-        newCell.innerHTML = `<input type="text" name="ProductName[]" class="form-control border-0" placeholder="Eg: Chalk"/>`;
-        newCell = newRow.insertCell(-1);
-        newCell.innerHTML = `<input type="number" name="UnitPrice[]" class="form-control border-0" placeholder="Unit Price"/>`;
-        newCell = newRow.insertCell(-1);
-        newCell.innerHTML = `<input type="number" name="Quantity[]" class="form-control border-0" placeholder="Quantity"/>`;
-        newCell = newRow.insertCell(-1);
-        newCell.innerHTML = `<input type="number" name="Amount[]" class="form-control border-0" readonly/>`;
+        const newRow = table.insertRow(rowCount - 4); // Append before the subtotal row
+        newRow.innerHTML = `
+            <td>
+                <input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required>
+                <datalist id="ProductID"><?php $sql_data="SELECT * FROM inventory"; $result_data=mysqli_query($conn,$sql_data);while($row=mysqli_fetch_assoc($result_data)){echo "<option value='".$row['ProductID']."'>".$row['ProductID']."</option>";}?></datalist>
+            </td>
+            <td class="text-center">
+                <input type="text" name="ProductName[]" class="form-control border-0" placeholder="Eg: Chalk"/>
+            </td>
+            <td class="text-center">
+                <textarea type="text" name="Description[]" class="form-control border-0" placeholder="Description"></textarea>
+            </td>
+            <td class="text-center">
+                <input type="number" name="UnitPrice[]" class="form-control border-0" placeholder="Unit Price"/>
+            </td>
+            <td class="text-center">
+                <input type="number" name="Quantity[]" class="form-control border-0" placeholder="Quantity"/>
+            </td>
+            <td class="text-right">
+                <input type="number" name="Amount[]" class="form-control border-0" readonly/>
+            </td>
+        `;
     }
 </script>
 </html>
