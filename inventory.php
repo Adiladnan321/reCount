@@ -16,13 +16,11 @@
     <br>
     <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
     <button class="btn btn-outline-secondary" onclick="location.reload();">&#10227;</button>
-    <br>
-    <h1>Inventory</h1>
+    <br><br>
+    <h1>📦Inventory</h1>
     <?php
-    // session_start();
-    // require_once 'database.php';
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['editButton'])) {
         $reorder = $_POST['reorder'];
         $ProductID = $_POST['ProductID'];
 
@@ -31,6 +29,13 @@
         $stmt->bind_param("ii", $reorder, $ProductID);
         $stmt->execute();
         $stmt->close();
+    }
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['viewButton'])) {
+        session_start();
+        $ProductID = $_POST['ProductID'];
+        $_SESSION['Pr']=$ProductID;
+        header("location:view.php");
+
     }
 
     // Retrieve inventory data from the database
@@ -43,8 +48,7 @@
     $totalVal = $resultVal->fetch_assoc();
     // Display total inventory value
     echo '<br>';
-    echo '<h4><strong>Total Inventory Value: </strong>' . $totalVal['TotalValue'] . '</h4><br><br>';
-
+    echo '<h4>Total Inventory Value: QR '  . $totalVal['TotalValue'] . '</h4><br><br>';
     // Display inventory in a table
     echo '<table class="table table-striped table-hover">';
     echo '<thead>';
@@ -66,15 +70,15 @@
     while ($row = $result->fetch_assoc()) {
         echo '<tr>';
         echo '<form action="inventory.php" method="POST">';
-        echo '<td><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</td>';
-        echo '<td>' . $row['ProductName'] . '</td>';
+        echo '<td><button name="viewButton" class="btn border-0"><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</button></td>';
+        echo '<td><button name="viewButton" class="btn border-0">' . $row['ProductName'] . '</button></td>';
         echo '<td>' . $row['SupplierID'] . '</td>';
         echo '<td>' . $row['Description'] . '</td>';
         echo '<td>' . $row['Quantity'] . '</td>';
         echo '<td>' . $row['UnitPrice'] . '</td>';
         echo '<td>' . $row['Amount'] . '</td>';
         echo '<td><input type="number" value="' . $row['ReorderLevel'] . '" name="reorder" class="form-control"></td>';
-        echo '<td><button class="btn btn-outline-primary">✔️</button></td>';
+        echo '<td><button name="editButton" class="btn btn-outline-primary">✔️</button></td>';
         echo '</form>';
         echo '<td>' . $row['Status'] . '</td>';
         echo '</tr>';
@@ -82,7 +86,6 @@
 
     echo '</tbody>';
     echo '</table>';
-
     $conn->close();
     ?>
 </div>
