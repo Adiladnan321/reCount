@@ -26,6 +26,7 @@
         $quantity = $_POST['Quantity'];
         $unitPrice = $_POST['UnitPrice'];
         $purchaseDate = $_POST['PurchaseDate'];
+        $Description=$_POST['Description'];
         
         // Calculate total amount
         $amount = $unitPrice * $quantity;
@@ -46,14 +47,14 @@
             $stmt_update->execute();
         } else {
             // Product does not exist, insert into inventory
-            $stmt_insert = $conn->prepare("INSERT INTO inventory (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, ReorderLevel) VALUES (?, ?, ?, 'desc', ?, ?, ?, 10)");
-            $stmt_insert->bind_param("ssiid", $productId, $productName, $supplierId, $quantity, $unitPrice, $amount);
+            $stmt_insert = $conn->prepare("INSERT INTO inventory (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, ReorderLevel) VALUES (?, ?, ?, ?, ?, ?, ?, 10)");
+            $stmt_insert->bind_param("ssiid", $productId, $productName, $supplierId, $quantity, $Description,$unitPrice, $amount);
             $stmt_insert->execute();
         }
         
         // Insert into purchase table
-        $stmt_purchase = $conn->prepare("INSERT INTO purchase (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, PurchaseDate) VALUES (?, ?, ?, 'desc', ?, ?, ?, ?)");
-        $stmt_purchase->bind_param("ssiidis", $productId, $productName, $supplierId, $quantity, $unitPrice, $amount, $purchaseDate);
+        $stmt_purchase = $conn->prepare("INSERT INTO purchase (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, PurchaseDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt_purchase->bind_param("ssiidis", $productId, $productName, $supplierId, $quantity, $Description,$unitPrice, $amount, $purchaseDate);
         $stmt_purchase->execute();
 
         header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
@@ -99,6 +100,7 @@
                     <th>ProductID</th>
                     <th>Product Name</th>
                     <th>Supplier Id</th>
+                    <th>Description</th>
                     <th>Quantity</th>
                     <th>Unit Price</th>
                     <th>Date</th>
@@ -135,6 +137,10 @@
                                 }
                             ?>
                         </datalist>
+                    </td>
+                    <td>
+                        <!-- Description -->
+                        <textarea type="text" class="form-control" name="Description" placeholder="Description" required></textarea>
                     </td>
                     <td>
                         <!-- Quantity -->
