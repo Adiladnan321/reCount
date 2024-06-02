@@ -66,7 +66,7 @@
                         $sql_totalVal = "SELECT SUM(Amount) AS TotalValue FROM inventory";
                         $resultVal = $conn->query($sql_totalVal);
                         $totalVal = $resultVal->fetch_assoc();
-                        echo "<div>Total: QR ". $totalVal['TotalValue'] ."</div>";
+                        echo "<div>Total: QR ". number_format($totalVal['TotalValue']) ."</div>";
                         ?></h5></center>
                 </div>
             </div>

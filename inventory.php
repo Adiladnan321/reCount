@@ -48,7 +48,7 @@
     $totalVal = $resultVal->fetch_assoc();
     // Display total inventory value
     echo '<br>';
-    echo '<h4>Total Inventory Value: QR '  . $totalVal['TotalValue'] . '</h4><br><br>';
+    echo '<h4>Total Inventory Value: QR '  . number_format($totalVal['TotalValue']) . '</h4><br><br>';
     // Display inventory in a table
     echo '<table class="table table-striped table-hover">';
     echo '<thead>';
