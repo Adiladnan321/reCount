@@ -148,11 +148,10 @@
                     </td>
                     <td>
                         <!-- Unit Price -->
-                        <input type="number" step="0.01" class="form-control" name="UnitPrice" placeholder="Unit Price" required>
-                    </td>
-                    <td>
+                                            </td>
+                    <t>
                         <!-- Purchase Date -->
-                        <input type="date" class="form-control" name="PurchaseDate" required>
+                        <input type=number_format("date" class=")form-control" name="PurchaseDate" required>
                     </td>
                 </tr>
             </tbody>
@@ -194,9 +193,9 @@
         echo '<td><input type="hidden" value="' . $row['ProductName'] . '" name="ProductName">' . $row['ProductName'] . '</td>';
         echo '<td><input type="hidden" value="' . $row['SupplierID'] . '" name="SupplierID">'. $row['SupplierID'] . '</td>';
         echo '<td><input type="hidden" value="' . $row['Description'] . '" name="Description">' . $row['Description'] . '</td>';
-        echo '<td><input type="hidden" value="' . number_format($row['Quantity']) . '" name="Quantity">' . $row['Quantity'] . '</td>';
-        echo '<td><input type="hidden" value="' . number_format($row['UnitPrice']) . '" name="UnitPrice">' . $row['UnitPrice'] . '</td>';
-        echo '<td><input type="hidden" value="' . number_format($row['Amount']) . '" name="Amount">' . $row['Amount'] . '</td>';
+        echo '<td><input type="hidden" value="' . $row['Quantity'] . '" name="Quantity">' . number_format($row['Quantity']) . '</td>';
+        echo '<td><input type="hidden" value="' . $row['UnitPrice'] . '" name="UnitPrice">' . number_format($row['UnitPrice']) . '</td>';
+        echo '<td><input type="hidden" value="' . $row['Amount'] . '" name="Amount">' . number_format($row['Amount']) . '</td>';
         echo '<td>' . $row['PurchaseDate'] . '</td>';
         echo '<td><button type="submit" name="deleteButton" class="btn border-0">🗑️</button></td>';
         echo '</form>';
