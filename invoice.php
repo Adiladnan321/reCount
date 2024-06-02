@@ -1,8 +1,7 @@
 <?php 
-    // session_start();
     require_once 'database.php';
 ?>
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -18,57 +17,80 @@
     <br>
     <h1></h1>
     <?php
-    // Database connection
-    // require_once 'database.php';
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Retrieving form data
-        $productId = $_POST['ProductID'];
-        $productName = $_POST['ProductName'];
+        // Retrieving form data
+        $productIds = $_POST['ProductID'];
+        $productNames = $_POST['ProductName'];
         $CustomerID = $_POST['CustomerID'];
-        $quantity = $_POST['Quantity'];
-        $unitPrice = $_POST['UnitPrice'];
+        $quantitys = $_POST['Quantity'];
+        $unitPrices = $_POST['UnitPrice'];
         $SaleDate = $_POST['SaleDate'];
-        
-        // Calculate total amount
-        $amount = $unitPrice * $quantity;
-        
-        // SQL to check if product exists in inventory
-        $sql_check = "SELECT * FROM inventory WHERE ProductID = '$productId'";
-        $result_check = mysqli_query($conn, $sql_check);
-        
-        if (mysqli_num_rows($result_check) > 0) {
-            // Product exists, update inventory
-            $row = mysqli_fetch_assoc($result_check);
-            $newQuantity = $row['Quantity'] - $quantity;
-            // $newUnitPrice = ($row['UnitPrice'] + $unitPrice) / 2; // Assuming average unit price
-            $newAmount = $newQuantity * $unitPrice;
-            if($newQuantity<0){
-                echo '<div class="alert alert-danger" role="alert">Not enough Quantity!</div>';
+        $tt=0;
+
+        // Start transaction
+        $conn->begin_transaction();
+
+        try {
+            // Insert invoice
+            $stmt = $conn->prepare("INSERT INTO invoice (CustomerID, InvoiceDate, Amount) VALUES (?, ?, ?)");
+            $stmt->bind_param("isd", $CustomerID, $SaleDate, $tt);
+            $stmt->execute();
+            $invoiceID = $stmt->insert_id;
+            $stmt->close();
+
+            // Insert sale items
+            $stmt = $conn->prepare("INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            for ($i = 0; $i < count($productIds); $i++) {
+                $productId = $productIds[$i];
+                $productName = $productNames[$i];
+                $quantity = $quantitys[$i];
+                $unitPrice = $unitPrices[$i];
+                $amount = $quantity * $unitPrice;
+                
+                $description = 'Desc'; // Assuming a static description as per the original code
+                $tt += $amount;
+
+                $stmt->bind_param("isisidds", $productId, $productName, $CustomerID, $description, $quantity, $unitPrice, $amount, $SaleDate);
+                $stmt->execute();
             }
-            else{
-                $sql_inventory = "UPDATE inventory SET Quantity = '$newQuantity', Amount = '$newAmount' WHERE ProductID = '$productId'";
-                $sql_purchase = "INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate) VALUES ('$productId', '$productName', '$CustomerID', 'desc', '$quantity', '$unitPrice', '$amount', '$SaleDate')";
-                mysqli_query($conn, $sql_inventory);
-                mysqli_query($conn, $sql_purchase);
+            $stmt->close();
+
+            // Update invoice with the total amount
+            $stmt2 = $conn->prepare("UPDATE invoice SET Amount = ? WHERE InvoiceID = ?");
+            $stmt2->bind_param("di", $tt, $invoiceID);
+            $stmt2->execute();
+            $stmt2->close();
+
+            // Insert invoice items
+            $stmt1 = $conn->prepare("INSERT INTO invoiceitem (InvoiceID, ProductID, Quantity, UnitPrice, TotalPrice) VALUES (?, ?, ?, ?, ?)");
+            for ($j = 0; $j < count($productIds); $j++) {
+                $productId = $productIds[$j];
+                $quantity = $quantitys[$j];
+                $unitPrice = $unitPrices[$j];
+                $amount = $quantity * $unitPrice;
+
+                $stmt1->bind_param("iiidd", $invoiceID, $productId, $quantity, $unitPrice, $amount);
+                $stmt1->execute();
             }
-        } else {
-            // Product does not exist, insert into inventory
-            echo '<div class="alert alert-danger" role="alert">Product Doesnot exists!</div>';
+            $stmt1->close();
+
+            // Commit transaction
+            $conn->commit();
+
+            // Redirect to the same page with a success message
+            header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+            exit();
+        } catch (Exception $e) {
+            // Rollback transaction on error
+            $conn->rollback();
+            echo "Failed to create invoice: " . $e->getMessage();
         }
-        
-        // Insert into purchase table
-        
-        // Execute queries
-        
-        // Close connection
-        // mysqli_close($conn);
     }
     ?>
-    
-        
+
     <br><br>
-    <div class="continer">
+    <div class="container">
         <form action="invoice.php" method="POST">
             <div class="row">
                 <div class="col-xs-12">
@@ -76,11 +98,11 @@
                         <h2>Invoice</h2>
                         <h3 class="pull-right">
                             <?php
-                                $sql_sno="SELECT * FROM sale";
-                                $result_sno=mysqli_query($conn,$sql_sno);
-                                $row=mysqli_fetch_assoc($result_sno);
-                                $r1=$row['Sno']+1;
-                                echo "Order #".$r1;
+                                $sql_sno = "SELECT MAX(InvoiceID) AS max_sno FROM invoice";
+                                $result_sno = mysqli_query($conn, $sql_sno);
+                                $row = mysqli_fetch_assoc($result_sno);
+                                $r1 = $row['max_sno'] + 1;
+                                echo "Order #" . $r1;
                             ?>
                         </h3>
                     </div>
@@ -88,17 +110,17 @@
                     <div class="row">
                         <div class="col-xs-6">
                             <address>
-                            <strong>Billed To:</strong><br>
-                            <label><input class="form-control" list="customer" name="CustomerID" placeholder="Customer Id"></label>
-                            <datalist id="customer">
-                                <?php
-                                    $sql_data = "SELECT * FROM customer";
-                                    $result_data = mysqli_query($conn,$sql_data);
-                                    while($row = mysqli_fetch_assoc($result_data)){
-                                        echo "<option value='".$row['CustomerID']."'>".$row['CustomerID']."</option>";
-                                    }
-                                ?>
-                            </datalist><br>
+                                <strong>Billed To:</strong><br>
+                                <label><input class="form-control" list="customer" name="CustomerID" placeholder="Customer Id"></label>
+                                <datalist id="customer">
+                                    <?php
+                                        $sql_data = "SELECT * FROM customer";
+                                        $result_data = mysqli_query($conn, $sql_data);
+                                        while ($row = mysqli_fetch_assoc($result_data)) {
+                                            echo "<option value='" . $row['CustomerID'] . "'>" . $row['CustomerID'] . "</option>";
+                                        }
+                                    ?>
+                                </datalist><br>
                             </address>
                         </div>
                     </div>
@@ -132,35 +154,33 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <!-- foreach ($order->lineItems as $line) or some such thing here -->
-
                                         <tr>
-                                        <td>
-                                            <!-- Product ID -->
-                                            <input type="text" class="form-control border-0" name="ProductID" placeholder="Product Id" list="ProductID" required>
-                                            <datalist id="ProductID">
-                                                <?php
-                                                    $sql_data="SELECT * FROM inventory";
-                                                    $result_data=mysqli_query($conn,$sql_data);
-                                                    while($row=mysqli_fetch_assoc($result_data)){
-                                                        echo "<option value='".$row['ProductID']."'>".$row['ProductID']."</option>";
-                                                    }
-                                                ?>
-                                            </datalist>
-                                        </td>
+                                            <td>
+                                                <!-- Product ID -->
+                                                <input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required>
+                                                <datalist id="ProductID">
+                                                    <?php
+                                                        $sql_data = "SELECT * FROM inventory";
+                                                        $result_data = mysqli_query($conn, $sql_data);
+                                                        while ($row = mysqli_fetch_assoc($result_data)) {
+                                                            echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductID'] . "</option>";
+                                                        }
+                                                    ?>
+                                                </datalist>
+                                            </td>
                                             <td class="text-center">
                                                 <!-- Product Name -->
-                                                <input type="text" class="form-control border-0" name="ProductName" placeholder="Eg: Chalk">
+                                                <input type="text" class="form-control border-0" name="ProductName[]" placeholder="Eg: Chalk">
                                             </td>
                                             <td class="text-center">
                                                 <!-- Unit Price -->
-                                                <input type="number" class="form-control border-0" name="UnitPrice" placeholder="Unit Price">
+                                                <input type="number" class="form-control border-0" name="UnitPrice[]" placeholder="Unit Price">
                                             </td>
                                             <td class="text-center">
-                                                <input type="number" class="form-control border-0" name="Quantity" placeholder="Quantity">
+                                                <input type="number" class="form-control border-0" name="Quantity[]" placeholder="Quantity">
                                             </td>
                                             <td class="text-right">
-                                                <input type="text" name="Amount" class="form-control border-0">
+                                                <input type="text" name="Amount[]" class="form-control border-0" readonly>
                                             </td>
                                         </tr>
                                         <tr class="hh">
@@ -203,23 +223,21 @@
 </body>
 <script>
     function addRow() {
-            const table = document.getElementById("dynamicTable");
-            const rowCount = table.rows.length;
-            const columnCount = table.rows[0].cells.length;
+        const table = document.getElementById("dynamicTable");
+        const rowCount = table.rows.length;
+        const columnCount = table.rows[0].cells.length;
 
-            const newRow = table.insertRow(rowCount - 4); // Append to the end of the table
-            let newCell = newRow.insertCell(-1);
-            newCell.innerHTML = `<input type="text" class="form-control border-0" name="ProductID" placeholder="Product Id" list="ProductID" required><datalist id="ProductID"><?php $sql_data="SELECT * FROM inventory"; $result_data=mysqli_query($conn,$sql_data);while($row=mysqli_fetch_assoc($result_data)){echo "<option value='".$row['ProductID']."'>".$row['ProductID']."</option>";}?></datalist>`;
-            newCell = newRow.insertCell(-1);
-            newCell.innerHTML = `<input type="text" name="ProductName" class="form-control border-0" placeholder="Eg: Chalk"/>`;
-            newCell = newRow.insertCell(-1);
-            newCell.innerHTML = `<input type="number" name="UnitPrice" class="form-control border-0" placeholder="Unit Price"/>`;
-            newCell = newRow.insertCell(-1);
-            newCell.innerHTML = `<input type="number" name="Quantity" class="form-control border-0" placeholder="Quantity"/>`;
-            newCell = newRow.insertCell(-1);
-            newCell.innerHTML = `<input type="number" name="Amount" class="form-control border-0"/>`;
-        }
-        
-
+        const newRow = table.insertRow(rowCount - 4); // Append to the end of the table
+        let newCell = newRow.insertCell(-1);
+        newCell.innerHTML = `<input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required><datalist id="ProductID"><?php $sql_data="SELECT * FROM inventory"; $result_data=mysqli_query($conn,$sql_data);while($row=mysqli_fetch_assoc($result_data)){echo "<option value='".$row['ProductID']."'>".$row['ProductID']."</option>";}?></datalist>`;
+        newCell = newRow.insertCell(-1);
+        newCell.innerHTML = `<input type="text" name="ProductName[]" class="form-control border-0" placeholder="Eg: Chalk"/>`;
+        newCell = newRow.insertCell(-1);
+        newCell.innerHTML = `<input type="number" name="UnitPrice[]" class="form-control border-0" placeholder="Unit Price"/>`;
+        newCell = newRow.insertCell(-1);
+        newCell.innerHTML = `<input type="number" name="Quantity[]" class="form-control border-0" placeholder="Quantity"/>`;
+        newCell = newRow.insertCell(-1);
+        newCell.innerHTML = `<input type="number" name="Amount[]" class="form-control border-0" readonly/>`;
+    }
 </script>
 </html>
