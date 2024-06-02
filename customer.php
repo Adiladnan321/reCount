@@ -159,7 +159,7 @@
         echo '<td>' . $row['Origin'] . '</td>';
         echo '<td>' . $row['Email'] . '</td>';
         echo '<td>' . $row['PhoneNumber'] . '</td>';
-        echo '<td><input value="' . $row['Due'] . '" type="text" name="Due" class="form-control border-0>"</td>';
+        echo '<td><input value="' . number_format($row['Due']) . '" type="text" name="Due" class="form-control border-0>"</td>';
         echo '<td><button class="btn btn-outline-primary" type="submit" name="dueButton">✔️</button></td>';
         echo '<td><button type="submit" name="deleteButton" class="btn border-0">🗑️</button></td>';
         echo '</form>';
