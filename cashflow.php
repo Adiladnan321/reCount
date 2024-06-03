@@ -72,40 +72,57 @@
             die("Connection failed: " . $conn->connect_error);
         }
 
-        // Get the month and year from URL or default to current month
-        $monthYear = isset($_GET['month']) ? $_GET['month'] : date('Y-m');
+        // Get the fromdate and todate from URL or default to current month
+        $fromdate = isset($_GET['fromdate']) ? $_GET['fromdate'] : date('Y-m-01');
+        $todate = isset($_GET['todate']) ? $_GET['todate'] : date('Y-m-t');
 
-        // Fetch sales data for the month
-        $sql = $conn->prepare("SELECT SUM(UnitPrice * Quantity) AS revenue FROM sale WHERE DATE_FORMAT(SaleDate, '%Y-%m') = ?");
-        $sql->bind_param("s", $monthYear);
+        // Fetch sales data for the date range
+        $sql = $conn->prepare("SELECT SUM(UnitPrice * Quantity) AS revenue FROM sale WHERE SaleDate BETWEEN ? AND ?");
+        $sql->bind_param("ss", $fromdate, $todate);
         $sql->execute();
         $result = $sql->get_result();
         $revenue = $result->fetch_assoc()['revenue'] ?? 0;
 
         // Fetch cost price from inventory to calculate Gross Profit
-        $sql = $conn->prepare("SELECT SUM((s.UnitPrice - i.UnitPrice) * s.Quantity) AS gp FROM sale s JOIN inventory i ON s.ProductID = i.ProductID WHERE DATE_FORMAT(SaleDate, '%Y-%m') = ?");
-        $sql->bind_param("s", $monthYear);
+        $sql = $conn->prepare("SELECT SUM((s.UnitPrice - i.UnitPrice) * s.Quantity) AS gp FROM sale s JOIN inventory i ON s.ProductID = i.ProductID WHERE s.SaleDate BETWEEN ? AND ?");
+        $sql->bind_param("ss", $fromdate, $todate);
         $sql->execute();
         $result = $sql->get_result();
         $grossProfit = $result->fetch_assoc()['gp'] ?? 0;
 
-        // Fetch expenses for the month (assuming expenses are stored in the cashflow table)
-        $sql = $conn->prepare("SELECT expense FROM cashflow WHERE date = ?");
-        $sql->bind_param("s", $monthYear);
+        // Fetch expenses for the date range
+        $sql = $conn->prepare("SELECT SUM(maintenance+fuel+salary+others) AS expenses FROM expenses WHERE date BETWEEN ? AND ?");
+        $sql->bind_param("ss", $fromdate, $todate);
         $sql->execute();
         $result = $sql->get_result();
         $expenses = $result->fetch_assoc()['expenses'] ?? 0;
 
         $netCashFlow = $grossProfit - $expenses;
 
-        // Insert or update the cashflow table
-        $sql = $conn->prepare("INSERT INTO cashflow (revenue, gp, expense, netflow, date) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE revenue = VALUES(revenue), gp = VALUES(gp), expense = VALUES(expense), netflow = VALUES(netflow)");
-        $sql->bind_param("dddds", $revenue, $grossProfit, $expenses, $netCashFlow,$monthYear);
-        $sql->execute();
-
         $conn->close();
     ?>
     <div class="cash-flow-container">
+        <form method="get" action="">
+            <table>
+                <tr>
+                    <th>From: </th>
+                    <td><input type="date" class="form-control" name="fromdate" value="<?= htmlspecialchars($fromdate) ?>"></td>
+                </tr>
+                <tr>
+                    <th>To: </th>
+                    <td><input type="date" class="form-control" name="todate" value="<?= htmlspecialchars($todate) ?>"></td>
+                </tr>
+                <tr>
+                    <td> </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align: center;">
+                        <input type="submit" value="Submit">
+                    </td>
+                </tr>
+            </table>
+        </form>
+
         <h1>Cash Flow Statement</h1>
         <div class="cash-flow-section">
             <h2>Revenue</h2>
