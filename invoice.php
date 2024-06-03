@@ -95,21 +95,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             .pp{
                 display: inline;
             }
+            img{
+                display: none;
+            }
         }
     </style>
 </head>
 <body>
 <div class="container pp">
     <br>
-    <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
+    <button class="btn btn-outline-secondary no-print" onclick="window.location.href='./index.php'"><</button>
     <br>
-    <h1>Invoice</h1>
+    <h1 class="no-print">Invoice</h1>
     <div class="container pp">
         <form action="invoice.php" method="POST" name="invoiceForm">
             <div class="row">
                 <div class="col-xs-12">
                     <div class="invoice-title">
-                        <h2>Invoice</h2>
+                        <h3><center>Invoice</center></h3>
                         <h3 class="pull-right">
                             <?php
                                 $sql_sno = "SELECT MAX(InvoiceID) AS max_InvoiceID FROM invoice";
