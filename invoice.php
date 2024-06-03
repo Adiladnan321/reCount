@@ -204,7 +204,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             </td>
                                             <td class="text-right">
                                                 <!-- Amount -->
-                                                <input type="text" name="Amount[]" id="amt[]" class="form-control border-0" readonly>
+                                                <input type="text" name="Amount0" id="amt0" class="form-control border-0" readonly>
                                             </td>
                                         </tr>
                                         <tr class="hh">
@@ -240,6 +240,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         const table = document.getElementById("dynamicTable");
         const rowCount = table.rows.length;
         const newRow = table.insertRow(rowCount - 2); // Append before the subtotal row
+        const amountIndex=rowCount-3;
         newRow.innerHTML = `
             <td>
                 <input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required>
@@ -258,7 +259,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="number" name="Quantity[]" class="form-control border-0" placeholder="Quantity"/>
             </td>
             <td class="text-right">
-                <input type="number" name="Amount[]" id="amt[]" class="form-control border-0" readonly/>
+                <input type="number" name="Amount[]" id="amt${amountIndex}" class="form-control border-0" readonly/>
             </td>
         `;
     }
@@ -281,6 +282,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             var quantity = parseFloat(rows[i].cells[4].getElementsByTagName("input")[0].value);
             var unitPrice = parseFloat(rows[i].cells[3].getElementsByTagName("input")[0].value);
             var amount = quantity * unitPrice;
+            var j=rows.length-4;
+            var a="amt"+j;
+            document.getElementById(a).value=amount;
             total += amount;
         }
         document.getElementById("total").value = total;
