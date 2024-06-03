@@ -87,19 +87,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
     <title>Invoice</title>
+    <style>
+        .thick-line {
+            border-bottom: 1px solid black;
+        }
+        @media print {
+            .no-print {
+                display: none;
+            }
+            .pp {
+                display: inline;
+            }
+            img {
+                display: none;
+            }
+            .print-line {
+                border-bottom: 1px solid black;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
+<div class="container pp">
     <br>
-    <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
+    <button class="btn btn-outline-secondary no-print" onclick="window.location.href='./index.php'"><</button>
     <br>
-    <h1>Invoice</h1>
-    <div class="container">
+    <h1 class="no-print">Invoice</h1>
+    <div class="container pp">
         <form action="invoice.php" method="POST" name="invoiceForm">
             <div class="row">
                 <div class="col-xs-12">
                     <div class="invoice-title">
-                        <h2>Invoice</h2>
+                        <h3><center>Invoice</center></h3>
                         <h3 class="pull-right">
                             <?php
                                 $sql_sno = "SELECT MAX(InvoiceID) AS max_InvoiceID FROM invoice";
@@ -121,7 +140,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         $sql_data = "SELECT * FROM customer";
                                         $result_data = mysqli_query($conn, $sql_data);
                                         while ($row = mysqli_fetch_assoc($result_data)) {
-                                            echo "<option value='" . $row['CustomerID'] . "'>" . $row['CustomerID'] . "</option>";
+                                            echo "<option value='" . $row['CustomerID'] . "'>" . $row['CustomerName'] . "</option>";
                                         }
                                     ?>
                                 </datalist><br>
@@ -155,20 +174,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <td><strong>Description</strong></td>
                                             <td><strong>Price</strong></td>
                                             <td><strong>Quantity</strong></td>
-                                            <td class="text-right"><strong>Totals</strong></td>
+                                            <td class="text-right"><strong>Total</strong></td>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
+                                        <tr class="print-line">
                                             <td>
                                                 <!-- Product ID -->
-                                                <input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required>
+                                                <input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required onchange="updateProductName(this)">
                                                 <datalist id="ProductID">
                                                     <?php
                                                         $sql_data = "SELECT * FROM inventory";
                                                         $result_data = mysqli_query($conn, $sql_data);
                                                         while ($row = mysqli_fetch_assoc($result_data)) {
-                                                            echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductID'] . "</option>";
+                                                            echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductName'] . "</option>";
                                                         }
                                                     ?>
                                                 </datalist>
@@ -191,11 +210,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             </td>
                                             <td class="text-right">
                                                 <!-- Amount -->
-                                                <input type="text" name="Amount[]" id="amt[]" class="form-control border-0" readonly>
+                                                <input type="text" name="Amount0" id="amt0" class="form-control border-0" readonly>
                                             </td>
                                         </tr>
-                                        <tr class="hh">
-                                            <td class="thick-line"><button type="button" class="btt" onclick="addRow()">+</button></td>
+                                        <tr class="no-print">
+                                            <td class="thick-line"><button type="button" class="btt  no-print" onclick="addRow()">+</button></td>
+                                            <td class="thick-line"></td>
                                             <td class="thick-line"></td>
                                             <td class="thick-line"></td>
                                             <td class="thick-line text-center"></td>
@@ -205,7 +225,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
-                                            <td class="no-line text-center"><strong>Total</strong></td>
+                                            <td class="no-line"></td>
+                                            <td class="no-line text-center"><strong>Total:</strong></td>
                                             <td class="no-line text-right"><input type="number" class="form-control border-0" id="total" readonly></td>
                                         </tr>
                                     </tbody>
@@ -216,21 +237,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </div>
             <div>
-                <button type="submit" class="btn btn-primary" onclick="printAndSubmit()">Print</button>
+                <button type="submit" class="btn btn-primary no-print" onclick="printAndSubmit()">Print</button>
             </div>
         </form>
     </div>
 </div>
 </body>
 <script>
+    const productData = <?php
+        $products = [];
+        $sql_data = "SELECT * FROM inventory";
+        $result_data = mysqli_query($conn, $sql_data);
+        while ($row = mysqli_fetch_assoc($result_data)) {
+            $products[$row['ProductID']] = $row['ProductName'];
+        }
+        echo json_encode($products);
+    ?>;
+
     function addRow() {
         const table = document.getElementById("dynamicTable");
         const rowCount = table.rows.length;
         const newRow = table.insertRow(rowCount - 2); // Append before the subtotal row
+        const amountIndex = rowCount - 3;
         newRow.innerHTML = `
             <td>
-                <input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required>
-                <datalist id="ProductID"><?php $sql_data="SELECT * FROM inventory"; $result_data=mysqli_query($conn,$sql_data);while($row=mysqli_fetch_assoc($result_data)){echo "<option value='".$row['ProductID']."'>".$row['ProductID']."</option>";}?></datalist>
+                <input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required onchange="updateProductName(this)">
+                <datalist id="ProductID"><?php $sql_data="SELECT * FROM inventory"; $result_data=mysqli_query($conn,$sql_data);while($row=mysqli_fetch_assoc($result_data)){echo "<option value='".$row['ProductID']."'>".$row['ProductName']."</option>";}?></datalist>
             </td>
             <td class="text-center">
                 <input type="text" name="ProductName[]" class="form-control border-0" placeholder="Eg: Chalk"/>
@@ -245,38 +277,42 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <input type="number" name="Quantity[]" class="form-control border-0" placeholder="Quantity"/>
             </td>
             <td class="text-right">
-                <input type="number" name="Amount[]" id="amt[]" class="form-control border-0" readonly/>
+                <input type="number" name="Amount[]" id="amt${amountIndex}" class="form-control border-0" readonly/>
             </td>
         `;
     }
-    function printAndSubmit() {
-        // Print the page
 
-        // document.getElementById("total");
+    function updateProductName(element) {
+        const productId = element.value;
+        const productName = productData[productId] || "";
+        const row = element.closest("tr");
+        const productNameField = row.querySelector('input[name="ProductName[]"]');
+        productNameField.value = productName;
+    }
+
+    function printAndSubmit() {
         document.getElementById("invoiceForm").submit();
-        
-        // Submit the form
         window.print();
     }
-    // Calculate total value and update the total cell
+
     function calculateTotal() {
-        var table = document.getElementById("dynamicTable");
-        var rows = table.rows;
-        var total = 0;
-        
-        for (var i = 1; i < rows.length - 2; i++) {
-            var quantity = parseFloat(rows[i].cells[4].getElementsByTagName("input")[0].value);
-            var unitPrice = parseFloat(rows[i].cells[3].getElementsByTagName("input")[0].value);
-            var amount = quantity * unitPrice;
+        const table = document.getElementById("dynamicTable");
+        const rows = table.rows;
+        let total = 0;
+
+        for (let i = 1; i < rows.length - 2; i++) {
+            const quantity = parseFloat(rows[i].cells[4].getElementsByTagName("input")[0].value) || 0;
+            const unitPrice = parseFloat(rows[i].cells[3].getElementsByTagName("input")[0].value) || 0;
+            const amount = quantity * unitPrice;
+            const j = rows.length - 4;
+            const a = "amt" + j;
+            document.getElementById(a).value = amount;
             total += amount;
         }
         document.getElementById("total").value = total;
     }
 
-    
-    // Call calculateTotal() whenever a change occurs in the table
     document.getElementById("dynamicTable").addEventListener("focusout", calculateTotal);
-    document.getElementById("dynamicTable").addEventListener("click", calculateTotal);    
-
+    document.getElementById("dynamicTable").addEventListener("click", calculateTotal);
 </script>
 </html>
