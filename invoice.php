@@ -134,7 +134,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         $sql_data = "SELECT * FROM customer";
                                         $result_data = mysqli_query($conn, $sql_data);
                                         while ($row = mysqli_fetch_assoc($result_data)) {
-                                            echo "<option value='" . $row['CustomerID'] . "'>" . $row['CustomerID'] . "</option>";
+                                            echo "<option value='" . $row['CustomerID'] . "'>" . $row['CustomerName'] . "</option>";
                                         }
                                     ?>
                                 </datalist><br>
@@ -181,7 +181,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                         $sql_data = "SELECT * FROM inventory";
                                                         $result_data = mysqli_query($conn, $sql_data);
                                                         while ($row = mysqli_fetch_assoc($result_data)) {
-                                                            echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductID'] . "</option>";
+                                                            echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductName'] . "</option>";
                                                         }
                                                     ?>
                                                 </datalist>
