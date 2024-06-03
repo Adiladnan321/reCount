@@ -88,6 +88,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="styles.css">
     <title>Invoice</title>
     <style>
+        .thick-line{
+            /* border-color: red; */
+            border-bottom: 1px solid black;
+        }
         @media print{
             .no-print{
                 display: none;
@@ -97,6 +101,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             }
             img{
                 display: none;
+            }
+            .print-line{
+                border-bottom: 1px solid black;
             }
         }
     </style>
@@ -172,7 +179,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
+                                        <tr class="print-line">
                                             <td>
                                                 <!-- Product ID -->
                                                 <input type="text" class="form-control border-0" name="ProductID[]" placeholder="Product Id" list="ProductID" required>
@@ -207,14 +214,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                                 <input type="text" name="Amount0" id="amt0" class="form-control border-0" readonly>
                                             </td>
                                         </tr>
-                                        <tr class="hh">
+                                        <tr class="no-print">
                                             <td class="thick-line"><button type="button" class="btt  no-print" onclick="addRow()">+</button></td>
+                                            <td class="thick-line"></td>
                                             <td class="thick-line"></td>
                                             <td class="thick-line"></td>
                                             <td class="thick-line text-center"></td>
                                             <td class="thick-line text-right"></td>
                                         </tr>
                                         <tr>
+                                            <td class="no-line"></td>
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
@@ -264,14 +273,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         `;
     }
     function printAndSubmit() {
-        // Print the page
-
-        // document.getElementById("total");
         document.getElementById("invoiceForm").submit();
-        
-        // Submit the form
         window.print();
     }
+
     // Calculate total value and update the total cell
     function calculateTotal() {
         var table = document.getElementById("dynamicTable");
