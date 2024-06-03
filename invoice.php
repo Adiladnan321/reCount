@@ -87,14 +87,24 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
     <title>Invoice</title>
+    <style>
+        @media print{
+            .no-print{
+                display: none;
+            }
+            .pp{
+                display: inline;
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
+<div class="container pp">
     <br>
     <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
     <br>
     <h1>Invoice</h1>
-    <div class="container">
+    <div class="container pp">
         <form action="invoice.php" method="POST" name="invoiceForm">
             <div class="row">
                 <div class="col-xs-12">
@@ -195,7 +205,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             </td>
                                         </tr>
                                         <tr class="hh">
-                                            <td class="thick-line"><button type="button" class="btt" onclick="addRow()">+</button></td>
+                                            <td class="thick-line"><button type="button" class="btt  no-print" onclick="addRow()">+</button></td>
                                             <td class="thick-line"></td>
                                             <td class="thick-line"></td>
                                             <td class="thick-line text-center"></td>
@@ -216,7 +226,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
             </div>
             <div>
-                <button type="submit" class="btn btn-primary" onclick="printAndSubmit()">Print</button>
+                <button type="submit" class="btn btn-primary no-print" onclick="printAndSubmit()">Print</button>
             </div>
         </form>
     </div>
