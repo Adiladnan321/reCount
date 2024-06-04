@@ -61,6 +61,34 @@
             font-weight: bold;
         }
 
+        .submitbutton{
+            background-color: black; /* Green */
+            border: none;
+            border-radius: 20px;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            margin-left: 20px;
+            cursor: pointer;
+        }
+
+        .expensebutton{
+            background-color: black; /* Green */
+            border: none;
+            border-radius: 20px;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;         
+        }
         .justice {
             align-self: flex-start;
         }
@@ -168,15 +196,16 @@
                 <tr>
                     <th>From: </th>
                     <td><input type="date" class="form-control" name="fromdate" value="<?= htmlspecialchars($fromdate) ?>"></td>
+                    <td rowspan="2" style="text-align: center;">
+                        <input type="submit" class="submitbutton" value="Search">
+                    </td>
                 </tr>
                 <tr>
                     <th>To: </th>
                     <td><input type="date" class="form-control" name="todate" value="<?= htmlspecialchars($todate) ?>"></td>
                 </tr>
                 <tr>
-                    <td colspan="2" style="text-align: center;">
-                        <input type="submit" value="Submit">
-                    </td>
+                    
                 </tr>
             </table>
         </form>
@@ -216,26 +245,26 @@
         <form method="post" action="">
             <div class="item">
                 <span class="description">Date:</span>
-                <input type="date" class="form-control" name="date" required>
+                <input type="date" class="form-control"  name="date" required style="width: 200px;">
             </div>
             <div class="item">
                 <span class="description">Fuel:</span>
-                <input type="number" step="0.01" class="form-control" name="fuel" required>
+                <input type="number" step="0.01" class="form-control" name="fuel" required style="width: 200px;">
             </div>
             <div class="item">
                 <span class="description">Vehicle Maintenance:</span>
-                <input type="number" step="0.01" class="form-control" name="vehicle_maintenance" required>
+                <input type="number" step="0.01" class="form-control" name="vehicle_maintenance" required style="width: 200px;">
             </div>
             <div class="item">
                 <span class="description">Salary:</span>
-                <input type="number" step="0.01" class="form-control" name="salary" required>
+                <input type="number" step="0.01" class="form-control" name="salary" required style="width: 200px;">
             </div>
             <div class="item">
                 <span class="description">Others:</span>
-                <input type="number" step="0.01" class="form-control" name="others" required>
+                <input type="number" step="0.01" class="form-control" name="others" required style="width: 200px;">
             </div>
             <div class="item" style="text-align: center;">
-                <input type="submit" name="add_expense" value="Add Expense">
+                <input type="submit" name="add_expense" value="Add Expense" class="expensebutton">
             </div>
         </form>
     </div>
