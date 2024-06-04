@@ -229,7 +229,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             </td>
                                         </tr>
                                         <tr class="no-print">
-                                            <td class="thick-line"><button type="button" class="btt  no-print" onclick="addRow()">+</button></td>
+                                            <td class="thick-line"><button type="button" class="btt border-0  no-print" onclick="addRow()">+</button></td>
                                             <td class="thick-line"></td>
                                             <td class="thick-line"></td>
                                             <td class="thick-line"></td>
