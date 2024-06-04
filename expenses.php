@@ -1,3 +1,6 @@
+<?PHP
+    require_once "database.php";
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -115,20 +118,6 @@
 </head>
 <body>
     <?php
-        // Database connection (replace with your actual connection details)
-        $host = "localhost";
-        $username = "root";
-        $password = "";
-        $dbname = "recount";
-
-        // Create connection
-        $conn = new mysqli($host, $username, $password, $dbname);
-
-        // Check connection
-        if ($conn->connect_error) {
-            die("Connection failed: " . $conn->connect_error);
-        }
-
         // Get the fromdate and todate from URL or default to current month
         $fromdate = isset($_GET['fromdate']) ? $_GET['fromdate'] : date('Y-m-01');
         $todate = isset($_GET['todate']) ? $_GET['todate'] : date('Y-m-t');
