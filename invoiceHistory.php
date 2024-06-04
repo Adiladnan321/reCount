@@ -6,7 +6,7 @@
         session_start();
         $InvoiceID = $_POST['InvoiceID'];
         $_SESSION['Inv']=$InvoiceID;
-        header("location:InvoiceView.php");
+        header("location:invoiceView.php");
     }
 ?>
 <!DOCTYPE html>
