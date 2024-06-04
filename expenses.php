@@ -23,11 +23,12 @@
         }
 
         .cash-flow-container {
+            margin-top: 80px;
             background-color: white;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            width: 400px;
             box-sizing: border-box;
         }
 
@@ -187,10 +188,12 @@
 
         // Calculate net cash flow
         $netCashFlow = $grossProfit - $totalExpenses;
-
+        
         $conn->close();
-    ?>
+        ?>
     <div class="cash-flow-container">
+        <h1>Expense Log</h1>
+        <hr>
         <form method="get" action="">
             <table>
                 <tr>
@@ -204,14 +207,10 @@
                     <th>To: </th>
                     <td><input type="date" class="form-control" name="todate" value="<?= htmlspecialchars($todate) ?>"></td>
                 </tr>
-                <tr>
-                    
-                </tr>
             </table>
         </form>
 
-        <h1>Expenses Sheet</h1>
-    
+        <br>
         <div class="cash-flow-section">
             <h2>Expenses</h2>
             <div class="item">
@@ -240,13 +239,15 @@
         </div>
     </div>
 
-    <div class="cash-flow-container justice">
-        <h2>Add Expense</h2>
+    <div class="cash-flow-container justice cash-flow-section">
+        <h1>Report Expense</h1>
+        <hr>
         <form method="post" action="">
             <div class="item">
                 <span class="description">Date:</span>
                 <input type="date" class="form-control"  name="date" required style="width: 200px;">
             </div>
+            <hr>
             <div class="item">
                 <span class="description">Fuel:</span>
                 <input type="number" step="0.01" class="form-control" name="fuel" required style="width: 200px;">
@@ -257,15 +258,17 @@
             </div>
             <div class="item">
                 <span class="description">Salary:</span>
-                <input type="number" step="0.01" class="form-control" name="salary" required style="width: 200px;">
+                <input type="number" step="0.00001" class="form-control" name="salary" required style="width: 200px;">
             </div>
             <div class="item">
                 <span class="description">Others:</span>
                 <input type="number" step="0.01" class="form-control" name="others" required style="width: 200px;">
             </div>
+            <hr>
             <div class="item" style="text-align: center;">
                 <input type="submit" name="add_expense" value="Add Expense" class="expensebutton">
             </div>
+            <br>
         </form>
     </div>
 </body>
