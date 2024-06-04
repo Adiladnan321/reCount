@@ -124,9 +124,8 @@ if(isset($_SESSION['Inv'])){
                                             while($row_inv=$result_inv->fetch_assoc()){
                                                 echo '<tr>';
                                                 echo '<td>' . $row_inv['ProductID'] . '</td>';
-                                                // echo '<td>' . $row['ProductName'] . '</td>';
-                                                echo '<td></td>';
-                                                echo '<td></td>';
+                                                echo '<td>' . $row_inv['ProductName'] . '</td>';
+                                                echo '<td>' . $row_inv['Description'] . '</td>';
                                                 echo '<td>' . $row_inv['Quantity'] . '</td>';
                                                 echo '<td>' . $row_inv['UnitPrice'] . '</td>';
                                                 echo '<td>' . $row_inv['TotalPrice'] . '</td>';
