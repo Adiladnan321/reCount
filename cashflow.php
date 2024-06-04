@@ -91,7 +91,7 @@
         $grossProfit = $result->fetch_assoc()['gp'] ?? 0;
 
         // Fetch expenses for the date range
-        $sql = $conn->prepare("SELECT SUM(maintenance+fuel+salary+others) AS expenses FROM expenses WHERE date BETWEEN ? AND ?");
+        $sql = $conn->prepare("SELECT SUM(vehicle_maintenance+fuel+salary+others) AS expenses FROM expense WHERE date BETWEEN ? AND ?");
         $sql->bind_param("ss", $fromdate, $todate);
         $sql->execute();
         $result = $sql->get_result();
