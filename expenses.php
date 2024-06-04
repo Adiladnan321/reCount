@@ -216,23 +216,23 @@
         <form method="post" action="">
             <div class="item">
                 <span class="description">Date:</span>
-                <input type="date" class="form-control" name="date" required>
+                <input type="date" class="form-control"  name="date" required style="width: 200px;">
             </div>
             <div class="item">
                 <span class="description">Fuel:</span>
-                <input type="number" step="0.01" class="form-control" name="fuel" required>
+                <input type="number" step="0.01" class="form-control" name="fuel" required style="width: 200px;">
             </div>
             <div class="item">
                 <span class="description">Vehicle Maintenance:</span>
-                <input type="number" step="0.01" class="form-control" name="vehicle_maintenance" required>
+                <input type="number" step="0.01" class="form-control" name="vehicle_maintenance" required style="width: 200px;">
             </div>
             <div class="item">
                 <span class="description">Salary:</span>
-                <input type="number" step="0.01" class="form-control" name="salary" required>
+                <input type="number" step="0.01" class="form-control" name="salary" required style="width: 200px;">
             </div>
             <div class="item">
                 <span class="description">Others:</span>
-                <input type="number" step="0.01" class="form-control" name="others" required>
+                <input type="number" step="0.01" class="form-control" name="others" required style="width: 200px;">
             </div>
             <div class="item" style="text-align: center;">
                 <input type="submit" name="add_expense" value="Add Expense">
