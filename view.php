@@ -21,6 +21,7 @@ if (isset($_SESSION['Pr'])) {
 <div class="container">
     <br>
     <button class="btn btn-outline-secondary" onclick="window.location.href='./inventory.php'"><</button>
+    <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'">🏠</button>
     <button class="btn btn-outline-secondary" onclick="location.reload();">&#10227;</button>
     <br>
     <h1>Product view</h1>
