@@ -255,6 +255,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <button type="submit" class="btn btn-primary no-print" onclick="printAndSubmit()">Print</button>
             </div>
         </form>
+        <div><br><button type="button" class="btn btn-outline-primary no-print" onclick="window.location.href='./invoiceHistory.php'">Invoice History</button></div>
     </div>
 </div>
 </body>
