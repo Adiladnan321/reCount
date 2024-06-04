@@ -100,7 +100,7 @@
                     <center><h5 class="card-title">Invoice</h5></center>
                 </div>
             </div>
-            <div class="card shadow p-3 border-0 mobile-card" style="width: 18rem;" onclick="window.location.href = 'cashflow.php'"><br><br><br>
+            <div class="card shadow p-3 border-0 mobile-card" style="width: 18rem;" onclick="window.location.href = 'cardflow.php'"><br><br><br>
                 <center><h1 style="font-size: 100px;">💸</h1></center>
                 <div class="card-body"><br>
                     <center><h5 class="card-title">Cash Flow</h5></center>
