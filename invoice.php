@@ -91,6 +91,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         .thick-line {
             border-bottom: 1px solid black;
         }
+        .fig{
+            line-height: 0px;
+            color: grey;
+            padding-left: 10px;
+        }
         @media print {
             .no-print {
                 display: none;
@@ -104,6 +109,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             .print-line {
                 border-bottom: 1px solid black;
             }
+            .src{
+                display: inline;
+                margin-top: 0px;
+                padding-bottom: 10px;
+                width: 200px;
+            }
         }
     </style>
 </head>
@@ -115,19 +126,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <h1 class="no-print">Invoice</h1>
     <div class="container pp">
         <form action="invoice.php" method="POST" name="invoiceForm">
+            <figure>
+                <img src="./SRC.png" class="src"/>
+                <figcaption class="fig">tel:44553055</figcaption>
+            </figure>
             <div class="row">
-                <div class="col-xs-12">
+                <div class="col-xs-12"><br>
                     <div class="invoice-title">
                         <h3><center>Invoice</center></h3>
-                        <h3 class="pull-right">
+                        <h5 class="pull-right">
                             <?php
                                 $sql_sno = "SELECT MAX(InvoiceID) AS max_InvoiceID FROM invoice";
                                 $result_sno = mysqli_query($conn, $sql_sno);
                                 $row = mysqli_fetch_assoc($result_sno);
                                 $r1 = $row['max_InvoiceID'] + 1;
-                                echo "Order #" . $r1;
+                                echo "InvoiceID #" . $r1;
                             ?>
-                        </h3>
+                        </h5>
                     </div>
                     <hr>
                     <div class="row">
@@ -214,7 +229,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             </td>
                                         </tr>
                                         <tr class="no-print">
-                                            <td class="thick-line"><button type="button" class="btt  no-print" onclick="addRow()">+</button></td>
+                                            <td class="thick-line"><button type="button" class="btt border-0  no-print" onclick="addRow()">+</button></td>
                                             <td class="thick-line"></td>
                                             <td class="thick-line"></td>
                                             <td class="thick-line"></td>
@@ -240,6 +255,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <button type="submit" class="btn btn-primary no-print" onclick="printAndSubmit()">Print</button>
             </div>
         </form>
+        <div><br><button type="button" class="btn btn-outline-primary no-print" onclick="window.location.href='./invoiceHistory.php'">Invoice History</button></div>
     </div>
 </div>
 </body>

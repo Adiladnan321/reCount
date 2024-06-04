@@ -115,13 +115,13 @@
                 <tr>
                     <td>
                         <!-- Product ID -->
-                        <input type="text" class="form-control" name="ProductID" placeholder="Product Id" list="ProductID" required>
+                        <input type="text" class="form-control" name="ProductID" placeholder="Product Id" list="ProductID" required onchange="updateProductName(this)">
                         <datalist id="ProductID">
                         <?php
                                 $sql_data="SELECT * FROM inventory";
                                 $result_data=mysqli_query($conn,$sql_data);
                                 while($row=mysqli_fetch_assoc($result_data)){
-                                    echo "<option value='".$row['ProductID']."'>".$row['ProductID']."</option>";
+                                    echo "<option value='".$row['ProductID']."'>".$row['ProductName']."</option>";
                                 }
                             ?>
                         </datalist>
@@ -138,7 +138,7 @@
                                 $sql_data = "SELECT * FROM customer";
                                 $result_data = mysqli_query($conn,$sql_data);
                                 while($row = mysqli_fetch_assoc($result_data)){
-                                    echo "<option value='".$row['CustomerID']."'>".$row['CustomerID']."</option>";
+                                    echo "<option value='".$row['CustomerID']."'>".$row['CustomerName']."</option>";
                                 }
                             ?>
                         </datalist>
@@ -211,13 +211,31 @@
             echo '</tbody>';
             echo '</table>';
 
-            mysqli_close($conn);
-        ?>
+            ?>
 </div>
 <script>
-    function confirmSubmission() {
-            return confirm("Are you sure!!!");
+    const productData = <?php
+            $products=[];
+            $sql_data="SELECT * FROM inventory";
+            $result_data=mysqli_query($conn,$sql_data);
+            while($row=mysqli_fetch_assoc($result_data)){
+                $products[$row['ProductID']]=$row['ProductName'];
+            }
+            echo json_encode($products);
+            mysqli_close($conn);
+            ?>;
+    // console.log(productData);
+function confirmSubmission() {
+    return confirm("Are you sure!!!");
         }
+
+    function updateProductName(element) {
+        const productId = element.value;
+        const productName = productData[productId] || "";
+        const row = element.closest("tr");
+        const productNameField = row.querySelector('input[name="ProductName"]');
+        productNameField.value = productName;
+    }
 </script>
 </body>
 </html>

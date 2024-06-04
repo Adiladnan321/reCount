@@ -1,23 +1,6 @@
 <?php 
     // session_start();
     require_once 'database.php';
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="styles.css">
-    <title>Purchase</title>
-</head>
-<body>
-<div class="container">
-    <br>
-    <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
-    <br>
-    <h1>Purchase</h1>
-    <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitButton'])) {
         // Retrieving form data
         $productId = $_POST['ProductID'];
@@ -91,7 +74,23 @@
             echo '<div class="alert alert-danger" role="alert">Error deleting purchase!</div>';
         }
     }
-    ?>
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+    <title>Purchase</title>
+</head>
+<body>
+<div class="container">
+    <br>
+    <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
+    <br>
+    <h1>Purchase</h1>
+    
     
     <form class="row gy-2 gx-3 align-items-center" action="purchase.php" method="POST">
         <table class="table">
@@ -110,13 +109,13 @@
                 <tr>
                     <td>
                         <!-- Product ID -->
-                        <input type="text" class="form-control" name="ProductID" placeholder="Product Id" list="ProductIDList" required>
+                        <input type="text" class="form-control" name="ProductID" placeholder="Product Id" list="ProductIDList" required onchange="updateProductName(this)">
                         <datalist id="ProductIDList">
                             <?php
                                 $sql_data = "SELECT * FROM inventory";
                                 $result_data = mysqli_query($conn, $sql_data);
                                 while ($row = mysqli_fetch_assoc($result_data)) {
-                                    echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductID'] . "</option>";
+                                    echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductName'] . "</option>";
                                 }
                             ?>
                         </datalist>
@@ -133,7 +132,7 @@
                                 $sql_data = "SELECT * FROM supplier";
                                 $result_data = mysqli_query($conn, $sql_data);
                                 while ($row = mysqli_fetch_assoc($result_data)) {
-                                    echo "<option value='" . $row['SupplierID'] . "'>" . $row['SupplierID'] . "</option>";
+                                    echo "<option value='" . $row['SupplierID'] . "'>" . $row['SupplierName'] . "</option>";
                                 }
                             ?>
                         </datalist>
@@ -206,13 +205,31 @@
     echo '</tbody>';
     echo '</table>';
 
-    mysqli_close($conn);
+    // mysqli_close($conn);
     ?>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-pZt4J9qAwA/V4xODCoT2COVIKCSN5DyQqV3+hMIFlFgSCJTVW6cRB/gaTk5e2lfd" crossorigin="anonymous"></script>
+<!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-pZt4J9qAwA/V4xODCoT2COVIKCSN5DyQqV3+hMIFlFgSCJTVW6cRB/gaTk5e2lfd" crossorigin="anonymous"></script> -->
 <script>
+    const productData = <?php
+        $products = [];
+        $sql_in = "SELECT * FROM inventory";
+        $result_in = mysqli_query($conn, $sql_in);
+        while ($row = mysqli_fetch_assoc($result_in)) {
+            $products[$row['ProductID']] = $row['ProductName'];
+        }
+        echo json_encode($products);
+        mysqli_close($conn);
+    ?>;
+    console.log(productData);
     function confirmSubmission() {
         return confirm("Are you sure you want to delete this purchase?");
+    }
+    function updateProductName(element) {
+        const productId = element.value;
+        const productName = productData[productId] || "";
+        const row = element.closest("tr");
+        const productNameField = row.querySelector('input[name="ProductName"]');
+        productNameField.value = productName;
     }
 </script>
 </body>
