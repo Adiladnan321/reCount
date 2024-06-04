@@ -41,14 +41,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $stmt2->close();
 
         // Insert invoice items
-        $stmt1 = $conn->prepare("INSERT INTO invoiceitem (InvoiceID, ProductID, Quantity, UnitPrice, TotalPrice) VALUES (?, ?, ?, ?, ?)");
+        $stmt1 = $conn->prepare("INSERT INTO invoiceitem (InvoiceID, ProductID, ProductName,Description, Quantity, UnitPrice, TotalPrice) VALUES (?, ?, ?, ?, ?, ?, ?)");
         for ($j = 0; $j < count($productIds); $j++) {
             $productId = $productIds[$j];
             $quantity = $quantitys[$j];
             $unitPrice = $unitPrices[$j];
+            $productName = $productNames[$i];
+            $Description = $Descriptions[$i];
             $amount = $quantity * $unitPrice;
 
-            $stmt1->bind_param("iiidd", $invoiceId, $productId, $quantity, $unitPrice, $amount);
+            $stmt1->bind_param("iissidd", $invoiceId, $productId,$productName,$Description, $quantity, $unitPrice, $amount);
             $stmt1->execute();
         }
         $stmt1->close();
