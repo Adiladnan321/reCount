@@ -1,6 +1,9 @@
 <?php
 // Start the session
 session_start();
+if(!isset($_SESSION["user"])){
+    header("Location: login.php");
+}
 require_once 'database.php';
 // Check if the session variable 'Pr' is set
 if (isset($_SESSION['Pr'])) {

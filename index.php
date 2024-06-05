@@ -1,6 +1,9 @@
 <?php 
     session_start();
     require_once 'database.php';
+    if(!isset($_SESSION["user"])){
+        header("Location: login.php");
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -50,7 +53,8 @@
     </style>
 </head>
 <body style="background-image: url(./logooffstr.png); background-repeat:no-repeat; background-size:100%">
-    <!-- <img src="./logooffstr.png" style="width: 100%;"><br><br> -->
+    <button onclick="window.location.href='./logout.php'">Logout</button>
+<!-- <img src="./logooffstr.png" style="width: 100%;"><br><br> -->
     <div class="container desk-card"><br>
         <br>
         <div class="row gap-5">

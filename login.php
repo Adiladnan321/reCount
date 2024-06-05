@@ -1,5 +1,9 @@
 <?PHP
-session_start()
+session_start();
+require_once "database.php";
+if(isset($_SESSION["user"])){
+    header("Location:index.php");
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -117,23 +121,10 @@ session_start()
         if(isset($_POST['login'])){
             $username = $_POST['username'];
             $password = $_POST['password'];
-            require_once "database.php";
+            
 
             $sql = "SELECT * FROM users WHERE username ='$username'";
             $result = mysqli_query($conn,$sql);
-            // $user = mysqli_fetch_array($result,MYSQLI_ASSOC);
-
-            // if($user){
-            //     if($password==$user['password']){
-            //         session_start();
-            //         $_SESSION['user'] = "yes";
-            //         header("location: index.php");
-            //         die();
-            //     }
-            //     else{
-            //         echo "<div>Password does not match</div>";
-            //     }
-            // }
             
 
             if($result)
@@ -144,7 +135,7 @@ session_start()
 					
 					if($user_data['password'] === $password)
 					{
-
+                        $_SESSION['user']=true;
 						$_SESSION['user_id'] = $user_data['user_id'];
 						header("Location: index.php");
 						die();

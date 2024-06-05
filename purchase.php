@@ -1,5 +1,8 @@
 <?php 
-    // session_start();
+    session_start();
+    if(!isset($_SESSION["user"])){
+        header("Location: login.php");
+    }
     require_once 'database.php';
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitButton'])) {
         // Retrieving form data
