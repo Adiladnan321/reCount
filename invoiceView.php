@@ -42,6 +42,11 @@ if(isset($_SESSION['Inv'])){
                 width: 200px;
             }
         }
+        @media (max-width:576px){
+            .mobile-card{
+                width: 700px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -76,7 +81,6 @@ if(isset($_SESSION['Inv'])){
                         <div class="col-xs-6">
                             <address>
                                 <strong>Billed To:</strong><br>
-                                <!-- <label><input class="form-control" list="customer" name="CustomerID" placeholder="Customer Id"></label> -->
                                 <?php
                                     echo '<label><input class="form-control" list="customer" name="CustomerID" placeholder="Customer Id" value="'.$row['CustomerID'].'"readonly></label>';
                                 ?>
@@ -106,7 +110,7 @@ if(isset($_SESSION['Inv'])){
                         </div>
                         <div class="panel-body">
                             <div class="table-responsive">
-                                <table class="table table-condensed" id="dynamicTable">
+                                <table class="table table-condensed mobile-card" id="dynamicTable">
                                     <thead>
                                         <tr>
                                             <td><strong>Id</strong></td>
@@ -137,7 +141,7 @@ if(isset($_SESSION['Inv'])){
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
-                                            <td class="no-line text-center"><strong>Total:</strong></td>
+                                            <td class="no-line text-center"><strong>Grand Total:</strong></td>
                                             <!-- <td class="no-line text-right"><input type="number" class="form-control border-0" id="total" readonly></td> -->
                                             <?php
                                                 echo '<td class="no-line text-right"><input type="number" class="form-control border-0" id="total" value="'.$row['Amount'].'" readonly></td>';
