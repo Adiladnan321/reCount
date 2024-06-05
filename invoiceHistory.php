@@ -30,10 +30,28 @@
                 width: 100%;
             }
         }
+        @media (min-width:1000px) {
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 5vh;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .ff{
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    }
     </style>
 </head>
 <body>
-<div class="container">
+<div class="container ff">
     <br>
     <button class="btn btn-outline-secondary" onclick="window.location.href='./invoice.php'"><</button>
     <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'">🏠</button>
