@@ -118,6 +118,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 width: 200px;
             }
         }
+        @media (max-width:576px){
+            .mobile-card{
+                width: 700px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -183,7 +188,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         </div>
                         <div class="panel-body">
                             <div class="table-responsive">
-                                <table class="table table-condensed" id="dynamicTable">
+                                <table class="table table-condensed mobile-card" id="dynamicTable">
                                     <thead>
                                         <tr>
                                             <td><strong>Id</strong></td>
