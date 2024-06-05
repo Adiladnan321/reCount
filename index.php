@@ -10,6 +10,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <title>reCount</title>
     <style>
+
         @media(min-width: 577px){
             .desk-card {
                 margin-top: 18rem;
@@ -53,6 +54,9 @@
     <!-- <img src="./logooffstr.png" style="width: 100%;"><br><br> -->
     <div class="container desk-card"><br>
         <br>
+        <form method="post" action="export.php">
+            <button type="submit" name="export" class="export-btn">Export Database as CSV</button>
+        </form>
         <div class="row gap-5">
             <div class="card shadow p-3 border-0 mobile-card" style="width: 18rem;" onclick="window.location.href = 'inventory.php'"><br><br>
                 <center><h1 style="font-size: 70px;">📦  💰</h1></center>
