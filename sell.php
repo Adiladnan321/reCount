@@ -10,9 +10,30 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="styles.css">
     <title>Sell</title>
+    <style>
+
+        @media (min-width:1000px) {
+            
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 5vh;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .ff{
+                background-color: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
 </head>
 <body>
-<div class="container">
+<div class="container ff">
     <br>
     <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
     <br>
@@ -145,7 +166,6 @@
                     </td>
                     <td>
                         <!-- Description -->
-                        <!-- <input type="text" class="form-control" name="Description" placeholder="Description" required> -->
                         <textarea type="text" class="form-control" name="Description" placeholder="Description" required></textarea>
                     </td>
                     <td>
@@ -177,7 +197,7 @@
             // Display student information in a table
             echo '<table class="table table-hover">';
             echo '<thead>';
-            echo '<tr>';
+            echo '<tr class="table-light">';
             echo '<th>S.NO</th>';
             echo '<th>Product Id</th>';
             echo '<th>Product name</th>';
