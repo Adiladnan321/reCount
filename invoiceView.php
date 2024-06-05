@@ -47,16 +47,34 @@ if(isset($_SESSION['Inv'])){
                 width: 700px;
             }
         }
+        @media (min-width:1000px) {
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 5vh;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .ff{
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    }
     </style>
 </head>
 <body>
-<div class="container pp">
+<div class="container ff">
     <br>
     <button class="btn btn-outline-secondary no-print" onclick="window.location.href='./invoiceHistory.php'"><</button>
     <button class="btn btn-outline-secondary no-print" onclick="window.location.href='./index.php'">🏠</button>
     <br>
     <h1 class="no-print">Invoice</h1>
-    <div class="container pp">
+    <div class="container">
         <form action="invoice.php" method="POST" name="invoiceForm">
             <figure>
                 <img src="./SRC.png" class="src"/>
