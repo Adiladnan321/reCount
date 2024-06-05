@@ -71,9 +71,9 @@
     echo '<br>';
     echo '<h4>Total Inventory Value: QR '  . number_format($totalVal['TotalValue']) . '</h4><br><br>';
     // Display inventory in a table
-    echo '<table class="table table-striped table-hover">';
+    echo '<table class="table  table-hover ">';
     echo '<thead>';
-    echo '<tr>';
+    echo '<tr class="table-light">';
     echo '<th scope="col">Product Id</th>';
     echo '<th scope="col">Product Name</th>';
     echo '<th scope="col">Supplier Id</th>';
