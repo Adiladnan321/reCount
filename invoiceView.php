@@ -45,16 +45,39 @@ if(isset($_SESSION['Inv'])){
                 width: 200px;
             }
         }
+        @media (max-width:576px){
+            .mobile-card{
+                width: 700px;
+            }
+        }
+        @media (min-width:1000px) {
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 5vh;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .ff{
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    }
     </style>
 </head>
 <body>
-<div class="container pp">
+<div class="container ff">
     <br>
     <button class="btn btn-outline-secondary no-print" onclick="window.location.href='./invoiceHistory.php'"><</button>
     <button class="btn btn-outline-secondary no-print" onclick="window.location.href='./index.php'">🏠</button>
     <br>
     <h1 class="no-print">Invoice</h1>
-    <div class="container pp">
+    <div class="container">
         <form action="invoice.php" method="POST" name="invoiceForm">
             <figure>
                 <img src="./SRC.png" class="src"/>
@@ -79,7 +102,6 @@ if(isset($_SESSION['Inv'])){
                         <div class="col-xs-6">
                             <address>
                                 <strong>Billed To:</strong><br>
-                                <!-- <label><input class="form-control" list="customer" name="CustomerID" placeholder="Customer Id"></label> -->
                                 <?php
                                     echo '<label><input class="form-control" list="customer" name="CustomerID" placeholder="Customer Id" value="'.$row['CustomerID'].'"readonly></label>';
                                 ?>
@@ -109,7 +131,7 @@ if(isset($_SESSION['Inv'])){
                         </div>
                         <div class="panel-body">
                             <div class="table-responsive">
-                                <table class="table table-condensed" id="dynamicTable">
+                                <table class="table table-condensed mobile-card" id="dynamicTable">
                                     <thead>
                                         <tr>
                                             <td><strong>Id</strong></td>
@@ -140,7 +162,7 @@ if(isset($_SESSION['Inv'])){
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
-                                            <td class="no-line text-center"><strong>Total:</strong></td>
+                                            <td class="no-line text-center"><strong>Grand Total:</strong></td>
                                             <!-- <td class="no-line text-right"><input type="number" class="form-control border-0" id="total" readonly></td> -->
                                             <?php
                                                 echo '<td class="no-line text-right"><input type="number" class="form-control border-0" id="total" value="'.$row['Amount'].'" readonly></td>';

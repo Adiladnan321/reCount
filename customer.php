@@ -14,8 +14,28 @@
     <link rel="stylesheet" href="styles.css">
     <title>Customer</title>
 </head>
+<style>
+    @media (min-width:1000px) {
+        
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 5vh;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .ff{
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    }
+</style>
 <body>
-<div class="container">
+<div class="container ff">
     <br>
     <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
     <br>
@@ -141,7 +161,7 @@
     // Display customer information in a table
     echo '<table class="table table-hover">';
     echo '<thead>';
-    echo '<tr>';
+    echo '<tr class="table-light">';
     echo '<th>Customer Id</th>';
     echo '<th>Customer Name</th>';
     echo '<th>Origin</th>';
