@@ -248,7 +248,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
                                             <td class="no-line"></td>
-                                            <td class="no-line text-center"><strong>Total:</strong></td>
+                                            <td class="no-line text-center"><strong>Grand Total:</strong></td>
                                             <td class="no-line text-right"><input type="number" class="form-control border-0" id="total" readonly></td>
                                         </tr>
                                     </tbody>
