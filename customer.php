@@ -33,9 +33,14 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
     }
+    @media (max-width:576px){
+            .mobile-card{
+                width: 1000px;
+            }
+        }
 </style>
 <body>
-<div class="container ff">
+<div class="container ff mobile-card">
     <br>
     <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
     <br>
@@ -157,6 +162,13 @@
         header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
         exit();
     }
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['viewButton'])) {
+        $Due = $_POST['Due'];
+        $CustomerID = $_POST['CustomerID'];
+        $_SESSION['cust']=$CustomerID;
+        header("Location: customerView.php");
+        exit();
+    }
 
     // Display customer information in a table
     echo '<table class="table table-hover">';
@@ -176,9 +188,9 @@
 
     while ($row = mysqli_fetch_assoc($result)) {
         echo '<tr>';
-        echo '<form action="customer.php" method="POST" onsubmit="return confirmSubmission()">';
-        echo '<td><input type="hidden" value="' . $row['CustomerID'] . '" name="CustomerID">' . $row['CustomerID'] . '</td>';
-        echo '<td>' . $row['CustomerName'] . '</td>';
+        echo '<form action="customer.php" method="POST" name="cust" onsubmit="return confirmSubmission()">';
+        echo '<td><input type="hidden" value="' . $row['CustomerID'] . '" name="CustomerID"><button name="viewButton" class="btn border-0">' . $row['CustomerID'] . '</button></td>';
+        echo '<td><button name="viewButton" class="btn border-0">' . $row['CustomerName'] . '</button></td>';
         echo '<td>' . $row['Origin'] . '</td>';
         echo '<td>' . $row['Email'] . '</td>';
         echo '<td>' . $row['PhoneNumber'] . '</td>';
