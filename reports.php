@@ -240,7 +240,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
                     <select class="form-select" id="reportType" name="reportType">
                         <option value="salesByCustomer">Sales by Customer</option>
                         <option value="salesByProduct">Sales by Product</option>
-                        <option value="profitAndLoss">Profit and Loss</option>
+                        <!-- <option value="profitAndLoss">Profit and Loss</option> -->
                         <!-- <option value="inventorySummary">Inventory Summary</option> -->
                         <!-- Add more report options -->
                     </select>
@@ -423,6 +423,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
     const salesData = <?php echo json_encode($salesData); ?>;
     const labels = salesData.map(sale => sale.SaleDate);
     const data = salesData.map(sale => sale.Amount);
+    const data1 = salesData.map(sale => sale.ProductName);
 
     salesChart.data.labels = labels;
     salesChart.data.datasets[0].data = data;
@@ -481,6 +482,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
                 borderColor: 'rgba(75, 192, 192, 1)',
                 borderWidth: 1
             }]
+            
         },
         options: {
             scales: {
@@ -494,14 +496,30 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
     <?php if (isset($salesData)): ?>
     // Populate Chart.js data
     const salesData = <?php echo json_encode($salesData); ?>;
+
+    
     const labels = salesData.map(sale => sale.SaleDate);
     const data = salesData.map(sale => sale.Amount);
+    const data1 = salesData.map(sale => sale.ProductName);
+
 
     salesChart.data.labels = labels;
     salesChart.data.datasets[0].data = data;
     salesChart.update();
     <?php endif; ?>
 </script>
-
+<script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1/daterangepicker.min.js"></script>
+<script>
+//     $(function() {
+//         $('input[name="daterange"]').daterangepicker({
+//             opens: 'left',
+//             locale: {
+//                 format: 'YYYY-MM-DD'
+//             },
+//             startDate: '<?php echo $startDate; ?>',
+//             endDate: '<?php echo $endDate; ?>'
+//         });
+//     });
+// </script>
 </body>
 </html>
