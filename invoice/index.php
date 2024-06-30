@@ -159,7 +159,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <div class="container">
         <form action="index.php" method="POST" name="invoiceForm">
             <figure>
-                <img src="./SRC.png" class="src"/>
+                <img src="../assets/SRC.png" class="src"/>
                 <figcaption class="fig">tel:44553055</figcaption>
             </figure>
             <div class="row">
