@@ -52,8 +52,8 @@
         }
     </style>
 </head>
-<body style="background-image: url(./logooffstr.png); background-repeat:no-repeat; background-size:100%">
-    <!-- <img src="./logooffstr.png" style="width: 100%;"><br><br> -->
+<body style="background-image: url(./assets/logooffstr.png); background-repeat:no-repeat; background-size:100%">
+    <!-- <img src="./assets/logooffstr.png" style="width: 100%;"><br><br> -->
     <div class="container desk-card"><br>
     <br>
     <form method="post" action="export.php">
