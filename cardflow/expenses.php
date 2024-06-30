@@ -185,6 +185,8 @@
         $conn->close();
         ?>
     <div class="cash-flow-container">
+    <button type="button" style="background-color: black; border-radius:20px; color:white;cursor:pointer" onclick="window.location.href='./index.php'">back</button>
+
         <h1>Expense Log</h1>
         <hr>
         <form method="get" action="">
