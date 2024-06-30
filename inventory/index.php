@@ -76,7 +76,7 @@
 <body>
 <div class="container ff">
     <br>
-    <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
+    <button class="btn btn-outline-secondary" onclick="window.location.href='../index.php'"><</button>
     <button class="btn btn-outline-secondary" onclick="location.reload();">&#10227;</button>
     <br><br>
     <h1>📦Inventory</h1>
