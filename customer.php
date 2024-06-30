@@ -159,8 +159,8 @@
         $stmt->bind_param("ii", $Due, $CustomerID);
         $stmt->execute();
         $stmt->close();
-        header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
-        exit();
+        // header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+        // exit();
     }
     if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['viewButton'])) {
         $Due = $_POST['Due'];

@@ -13,19 +13,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <title>reCount</title>
     <style>
-        .export-btn{
-            /* background-color: brow; */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            background-color: white;
-            border-radius: 10px;
-            /* height: 40px; */
-            padding: 10px;
-            border: 1px solid grey;
-        }
-        .export-btn:hover{
-            background-color: #5555;
-            color: white;
-        }
         @media(min-width: 577px){
             .desk-card {
                 margin-top: 18rem;
@@ -66,13 +53,28 @@
     </style>
 </head>
 <body style="background-image: url(./logooffstr.png); background-repeat:no-repeat; background-size:100%">
-    <button onclick="window.location.href='./logout.php'">Logout</button>
-<!-- <img src="./logooffstr.png" style="width: 100%;"><br><br> -->
+    <!-- <img src="./logooffstr.png" style="width: 100%;"><br><br> -->
     <div class="container desk-card"><br>
-        <br>
-        <form method="post" action="export.php">
-            <button type="submit" name="export" class="export-btn">Export Database</button>
-        </form><br>
+    <br>
+    <form method="post" action="export.php">
+        <button type="button" class="btn btn-outline-dark" onclick="window.location.href='./logout.php'">Logout</button>
+        <button type="submit" name="export" class="btn btn-dark dd">Export Database</button>
+        <?php 
+            $sql2="SELECT * FROM sale";
+            $res=mysqli_query($conn,$sql2);
+            $bb=0;
+            $cb=0;
+            while($row2=mysqli_fetch_assoc($res)){
+                if($row2['paymentMethod']=='bank'){
+                    $bb=$bb+$row2['Amount'];
+                }else if($row2['paymentMethod']=='cash'){
+                    $cb=$cb+$row2['Amount'];
+                }
+            }
+            echo "<button class='btn btn-outline-dark'>Bank Balance:".$bb."</button>";
+            echo "<button class='btn btn-outline-dark'>Cash Balance:".$cb."</button>";
+        ?>
+    </form><br>
         <div class="row gap-5">
             <div class="card shadow p-3 border-0 mobile-card" style="width: 18rem;" onclick="window.location.href = 'inventory.php'"><br><br>
                 <center><h1 style="font-size: 70px;">📦  💰</h1></center>
@@ -130,6 +132,12 @@
                 <center><h1 style="font-size: 100px;">💳</h1></center>
                 <div class="card-body"><br>
                     <center><h5 class="card-title">Credit</h5></center>
+                </div>
+            </div>
+            <div class="card shadow p-3 border-0 mobile-card" style="width: 18rem;" onclick="window.location.href = 'reports.php'"><br><br><br>
+                <center><h1 style="font-size: 100px;">📑</h1></center>
+                <div class="card-body"><br>
+                    <center><h5 class="card-title">Reports</h5></center>
                 </div>
             </div>
         </div><br><br>

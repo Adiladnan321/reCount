@@ -1,8 +1,13 @@
-.btt{
-    border: none;
-    /* background-color: none; */
-    /* border-radius: 100%; */
-    /* font-size: 40px; */
-    /* padding: 0px;
-    margin: 0px; */
+/* styles.css */
+.status-available {
+    background-color: #d4edda; /* Greenish background for available status */
 }
+
+.status-low-stock {
+    background-color: #fff3cd; /* Yellowish background for low stock status */
+}
+
+.status-out-of-stock {
+    background-color: #ff0015; /* Reddish background for out of stock status */
+}
+

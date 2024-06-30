@@ -45,8 +45,8 @@ function handlePurchaseSubmit($conn) {
     } else {
         // Product does not exist, insert into inventory
         // Removed the Amount column from the INSERT statement
-        $stmt_insert = $conn->prepare("INSERT INTO inventory (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, ReorderLevel) VALUES (?, ?, ?, ?, ?, ?, 10)");
-        $stmt_insert->bind_param("isisid", $productId, $productName, $supplierId, $description, $quantity, $unitPrice);
+        $stmt_insert = $conn->prepare("INSERT INTO inventory (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice,Amount, ReorderLevel) VALUES (?, ?, ?, ?,?, ?, ?, 10)");
+        $stmt_insert->bind_param("isisidd", $productId, $productName, $supplierId, $description, $quantity, $unitPrice,$amount);
         $stmt_insert->execute();
     }
     

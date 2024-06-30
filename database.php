@@ -3,7 +3,7 @@
 $host = 'localhost';
 $username = 'root';
 $password = '';
-$dbname = 'recount';
+$dbname = 're';
 $conn = mysqli_connect($host, $username, $password, $dbname);
 
 if (!$conn) {

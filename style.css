@@ -14,7 +14,7 @@ body {
 /* Header styles */
 header {
     background-color: #333;
-    color: #fff;
+    color: #fafafa;
     padding: 20px 0;
     text-align: center;
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -96,3 +96,4 @@ footer {
 .table > tbody > tr > .thick-line {
     border-top: 2px solid;
 }
+

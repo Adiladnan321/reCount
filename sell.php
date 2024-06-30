@@ -1,6 +1,7 @@
 <?php 
     session_start();
-    if(!isset($_SESSION["user"])){
+    $user=$_SESSION['user_name'];
+    if(!isset($_SESSION['user'])){
         header("Location: login.php");
     }
     require_once 'database.php';
@@ -54,7 +55,7 @@
         $newUnitPrice = $_POST['UnitPrice'];
         $SaleDate = $_POST['SaleDate'];
         $Description=$_POST['Description'];
-        
+        $paymentMethod=$_POST['paymentMethod'];
         // Calculate total amount
         $amount = $newUnitPrice * $quantity;
         
@@ -73,7 +74,7 @@
             }
             else{
                 $sql_inventory = "UPDATE inventory SET Quantity = '$newQuantity', Amount = '$newAmount' WHERE ProductID = '$productId'";
-                $sql_purchase = "INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate) VALUES ('$productId', '$productName', '$CustomerID', '$Description', '$quantity', '$newUnitPrice', '$amount', '$SaleDate')";
+                $sql_purchase = "INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate, modifiedBy, paymentMethod) VALUES ('$productId', '$productName', '$CustomerID', '$Description', '$quantity', '$newUnitPrice', '$amount', '$SaleDate','$user','$paymentMethod')";
                 mysqli_query($conn, $sql_inventory);
                 mysqli_query($conn, $sql_purchase);
             }
@@ -81,8 +82,8 @@
             // Product does not exist, insert into inventory
             echo '<div class="alert alert-danger" role="alert">Product Doesnot exists!</div>';
         }
-        header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
-        exit();
+        // header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
+        // exit();
         // Insert into purchase table
         
         // Execute queries
@@ -114,8 +115,6 @@
         
         if ($stmt_delete->execute() && $stmt_update_inventory->execute()) {
             echo '<div class="alert alert-success" role="alert">Sell deleted successfully!</div>';
-            header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
-            exit();
         } else {
             echo '<div class="alert alert-danger" role="alert">Error deleting purchase!</div>';
         }
@@ -133,6 +132,7 @@
                     <th>Quantity</th>
                     <th>Unit Price</th>
                     <th>Date</th>
+                    <th>Payment Method</th>
                 </tr>
             </thead>
             <tbody>
@@ -183,6 +183,14 @@
                         <!-- Sale Date -->
                         <input type="date" class="form-control" name="SaleDate">
                     </td>
+                    <td>
+                        <!-- card -->
+                        <!-- <input type="list" class="form-control" name> -->
+                        <select id="paymentMethod" class="form-control" name="paymentMethod">
+                            <option value="bank">bank</option>
+                            <option value="cash">cash</option>
+                        </select>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -192,11 +200,23 @@
     </form>
     <br><br>
     <h1>Sale History</h1>
+        <form action="sell.php" method="POST">
+            <select id="user" name='user' class="form-control" style="width: 30%;">
+                <?php
+                    $sql_user = "SELECT * FROM users";
+                    $result_user = mysqli_query($conn,$sql_user);
+                    echo '<option>---users---</option>';
+                    while($row_user = mysqli_fetch_assoc($result_user)){
+                        echo "<option value='".$row_user['username']."'>".$row_user['username']."</option>";
+                    }
+                ?>
+            </select><br>
+        </form>
         <?php
+            // $user1=true;
             // Retrieve student data from the database
             $sql = "SELECT * FROM sale";
             $result = mysqli_query($conn, $sql);
-
             // Display student information in a table
             echo '<table class="table table-hover">';
             echo '<thead>';
@@ -247,10 +267,9 @@
             echo json_encode($products);
             mysqli_close($conn);
             ?>;
-    // console.log(productData);
-function confirmSubmission() {
-    return confirm("Are you sure!!!");
-        }
+    function confirmSubmission() {
+        return confirm("Are you sure!!!");
+    }
 
     function updateProductName(element) {
         const productId = element.value;
@@ -258,6 +277,9 @@ function confirmSubmission() {
         const row = element.closest("tr");
         const productNameField = row.querySelector('input[name="ProductName"]');
         productNameField.value = productName;
+    }
+    if ( window.history.replaceState ) {
+        window.history.replaceState( null, null, window.location.href );
     }
 </script>
 </body>

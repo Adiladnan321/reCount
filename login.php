@@ -1,9 +1,32 @@
 <?PHP
 session_start();
 require_once "database.php";
-if(isset($_SESSION["user"])){
-    header("Location:index.php");
-}
+
+if(isset($_POST['login'])||isset($_SESSION["user"])){
+            $username = $_POST['username'];
+            $password = $_POST['password'];
+            
+
+            $sql = "SELECT * FROM users WHERE username ='$username'";
+            $result = mysqli_query($conn,$sql);
+            
+
+            if($result)
+			{
+				if($result && mysqli_num_rows($result) > 0)
+				{
+                    $user_data = mysqli_fetch_assoc($result);
+					
+					if($user_data['password'] === $password)
+					{
+                        $_SESSION['user']=true;
+						$_SESSION['user_name'] = $user_data['username'];
+						header("Location: index.php");
+						die();
+					}
+				}
+			}
+        }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -117,33 +140,7 @@ if(isset($_SESSION["user"])){
 </head>
 <body>
     <div class="container">
-        <?php
-        if(isset($_POST['login'])){
-            $username = $_POST['username'];
-            $password = $_POST['password'];
-            
-
-            $sql = "SELECT * FROM users WHERE username ='$username'";
-            $result = mysqli_query($conn,$sql);
-            
-
-            if($result)
-			{
-				if($result && mysqli_num_rows($result) > 0)
-				{
-                    $user_data = mysqli_fetch_assoc($result);
-					
-					if($user_data['password'] === $password)
-					{
-                        $_SESSION['user']=true;
-						$_SESSION['user_id'] = $user_data['user_id'];
-						header("Location: index.php");
-						die();
-					}
-				}
-			}
-        }
-        ?>
+        
         <div class="logo">
             <!-- <img src="logob.png"> -->
         </div>

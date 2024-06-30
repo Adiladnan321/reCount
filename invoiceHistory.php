@@ -6,7 +6,7 @@
     require_once 'database.php';
 
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['viewButton'])) {
-        session_start();
+        // session_start();
         $InvoiceID = $_POST['InvoiceID'];
         $_SESSION['Inv']=$InvoiceID;
         header("location:invoiceView.php");

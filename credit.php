@@ -25,7 +25,7 @@ require_once 'database.php';
         $AmountPaid = $_POST['AmountPaid'];
         $PaidDate = $_POST['PaidDate'];
 
-        $sql_due = "SELECT Due FROM Customer WHERE CustomerID = ?";
+        $sql_due = "SELECT Due FROM customer WHERE CustomerID = ?";
         $stmt_due = $conn->prepare($sql_due);
         $stmt_due->bind_param("i", $CustomerID);
 

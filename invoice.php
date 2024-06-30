@@ -1,5 +1,6 @@
 <?php
     session_start();
+    $user=$_SESSION['user_name'];
     if(!isset($_SESSION["user"])){
         header("Location: login.php");
     }
@@ -18,10 +19,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $unitPrices = $_POST['UnitPrice'];
         $SaleDate = $_POST['SaleDate'];
         $Descriptions=$_POST['Description'];
+        $paymentMethod=$_POST['paymentMethod'];
         $totalAmount = 0;
 
         // Insert sale records and calculate total amount
-        $stmt = $conn->prepare("INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate, modifiedBy, paymentMethod) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         for ($i = 0; $i < count($productIds); $i++) {
             $productId = $productIds[$i];
             $productName = $productNames[$i];
@@ -32,26 +34,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $Description = $Descriptions[$i]; // Static description as per original code
             $totalAmount += $amount;
             
-            $stmt->bind_param("isisidds", $productId, $productName, $CustomerID, $Description, $quantity, $unitPrice, $amount, $SaleDate);
+            $stmt->bind_param("isisiddsss", $productId, $productName, $CustomerID, $Description, $quantity, $unitPrice, $amount, $SaleDate,$user,$paymentMethod);
             $stmt->execute();
         }
         $stmt->close();
 
         // Insert invoice record
-        $stmt2 = $conn->prepare("INSERT INTO invoice (CustomerID, InvoiceDate, Amount) VALUES (?, ?, ?)");
-        $stmt2->bind_param("isd", $CustomerID, $SaleDate, $totalAmount);
+        $stmt2 = $conn->prepare("INSERT INTO invoice (CustomerID, InvoiceDate, Amount, modifiedBy, paymentMethod) VALUES (?, ?, ?, ?,?)");
+        $stmt2->bind_param("isdss", $CustomerID, $SaleDate, $totalAmount, $user,$paymentMethod);
         $stmt2->execute();
         $invoiceId = $stmt2->insert_id; // Get the last inserted invoice ID
         $stmt2->close();
 
         // Insert invoice items
-        $stmt1 = $conn->prepare("INSERT INTO invoiceitem (InvoiceID, ProductID, ProductName,Description, Quantity, UnitPrice, TotalPrice) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt1 = $conn->prepare("INSERT INTO invoiceitem (InvoiceID, ProductID, ProductName, Description, Quantity, UnitPrice, TotalPrice) VALUES (?, ?, ?, ?, ?, ?, ?)");
         for ($j = 0; $j < count($productIds); $j++) {
             $productId = $productIds[$j];
             $quantity = $quantitys[$j];
             $unitPrice = $unitPrices[$j];
-            $productName = $productNames[$i];
-            $Description = $Descriptions[$i];
+            $productName = $productNames[$j];
+            $Description = $Descriptions[$j];
             $amount = $quantity * $unitPrice;
 
             $stmt1->bind_param("iissidd", $invoiceId, $productId,$productName,$Description, $quantity, $unitPrice, $amount);
@@ -133,7 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             body {
                 font-family: Arial, sans-serif;
                 background-color: #f4f4f4;
-                margin: 10vh;
+                margin: 5vh;
                 padding: 0;
                 display: flex;
                 justify-content: center;
@@ -190,6 +192,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                                     ?>
                                 </datalist><br>
                             </address>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-6">
+                            <address>
+                                
+                                <!-- card -->
+                                <!-- <input type="list" class="form-control" name> -->
+                                <strong>Payment Method:</strong><br>
+                                <select id="pay" class="form-control" name="paymentMethod" style="width: 210px;">
+                                    <option>bank</option>
+                                    <option>cash</option>
+                                </select>
+                            </address>
+
                         </div>
                     </div>
                     <div class="row">
@@ -337,8 +354,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     function printAndSubmit() {
-        document.getElementById("invoiceForm").submit();
         window.print();
+        document.getElementById("invoiceForm").submit();
     }
 
     function calculateTotal() {

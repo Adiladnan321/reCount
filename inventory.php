@@ -15,7 +15,7 @@
         $stmt->close();
     }
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['viewButton'])) {
-        session_start();
+        // session_start();
         $ProductID = $_POST['ProductID'];
         $_SESSION['Pr']=$ProductID;
         header("location:view.php");
@@ -50,6 +50,27 @@
                 box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         }
+        @media (max-width:576px){
+            /* .mobile-card{
+                width: 1000px;
+            } */
+            .ff{
+                overflow: auto;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+            }
+
+            .fixed-column {
+                position: -webkit-sticky; /* for Safari */
+                position: sticky;
+                left: 0;
+                /* background-color: #fff; */
+                z-index: 1;
+            }
+        }
     </style>
 </head>
 <body>
@@ -74,10 +95,10 @@
     echo '<br>';
     echo '<h4>Total Inventory Value: QR '  . number_format($totalVal['TotalValue']) . '</h4><br><br>';
     // Display inventory in a table
-    echo '<table class="table  table-hover ">';
+    echo '<table class="table  table-hover table-container">';
     echo '<thead>';
     echo '<tr class="table-light">';
-    echo '<th scope="col">Product Id</th>';
+    echo '<th scope="col" class="fixed-column">Product Id</th>';
     echo '<th scope="col">Product Name</th>';
     echo '<th scope="col">Supplier Id</th>';
     echo '<th scope="col">Description</th>';
@@ -94,7 +115,7 @@
     while ($row = $result->fetch_assoc()) {
         echo '<tr>';
         echo '<form action="inventory.php" method="POST">';
-        echo '<td><button name="viewButton" class="btn border-0"><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</button></td>';
+        echo '<td class="fixed-column"><button name="viewButton" class="btn border-0"><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</button></td>';
         echo '<td><button name="viewButton" class="btn border-0">' . $row['ProductName'] . '</button></td>';
         echo '<td>' . $row['SupplierID'] . '</td>';
         echo '<td>' . $row['Description'] . '</td>';
