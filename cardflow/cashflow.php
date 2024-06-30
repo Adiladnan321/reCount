@@ -97,6 +97,8 @@
         $conn->close();
     ?>
     <div class="cash-flow-container">
+    <button type="button" style="background-color: black; border-radius:20px; color:white;cursor:pointer" onclick="window.location.href='./index.php'">back</button>
+    <br><br>
         <form method="get" action="">
             <table>
                 <tr>
@@ -112,7 +114,7 @@
                 </tr>
                 <tr>
                     <td colspan="2" style="text-align: center;">
-                        <input type="submit" value="Submit">
+                        <input type="submit" value="Submit" style="background-color: black; border-radius:20px; color:white;cursor:pointer">
                     </td>
                 </tr>
             </table>
