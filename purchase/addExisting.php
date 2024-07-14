@@ -42,53 +42,21 @@ function handlePurchaseSubmit($conn) {
         $stmt_update = $conn->prepare("UPDATE inventory SET Quantity = ?, UnitPrice = ? WHERE ProductID = ?");
         $stmt_update->bind_param("ids", $newQuantity, $unitPrice, $productId);
         $stmt_update->execute();
+        // Insert into purchase table
+        // Removed the Amount column from the INSERT statement
+        $stmt_purchase = $conn->prepare("INSERT INTO purchase (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, PurchaseDate) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt_purchase->bind_param("isisids", $productId, $productName, $supplierId, $description, $quantity, $unitPrice, $purchaseDate);
+        $stmt_purchase->execute();
+        $_SESSION['message'] = 'Purchase added successfully!';
     } else {
         // Product does not exist, insert into inventory
         // Removed the Amount column from the INSERT statement
-        $stmt_insert = $conn->prepare("INSERT INTO inventory (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice,Amount, ReorderLevel) VALUES (?, ?, ?, ?,?, ?, ?, 10)");
-        $stmt_insert->bind_param("isisidd", $productId, $productName, $supplierId, $description, $quantity, $unitPrice,$amount);
-        $stmt_insert->execute();
+        $_SESSION['error'] = 'Product doesnot Exists';
     }
-    
-    // Insert into purchase table
-    // Removed the Amount column from the INSERT statement
-    $stmt_purchase = $conn->prepare("INSERT INTO purchase (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, PurchaseDate) VALUES (?, ?, ?, ?, ?, ?, ?)");
-    $stmt_purchase->bind_param("isisids", $productId, $productName, $supplierId, $description, $quantity, $unitPrice, $purchaseDate);
-    $stmt_purchase->execute();
-
-    $_SESSION['message'] = 'Purchase added successfully!';
     header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
     exit();
 }
 
-function handlePurchaseDelete($conn) {
-    $sno = intval($_POST['Sno']);
-    $productId = intval($_POST['ProductID']);
-    $quantity = intval($_POST['Quantity']);
-    
-    // Fetch current quantity from inventory
-    $stmt_get_inventory = $conn->prepare("SELECT Quantity, UnitPrice FROM inventory WHERE ProductID=?");
-    $stmt_get_inventory->bind_param("i", $productId);
-    $stmt_get_inventory->execute();
-    $result_inventory = $stmt_get_inventory->get_result();
-    $inventory_data = $result_inventory->fetch_assoc();
-    
-    $newQuantity = $inventory_data['Quantity'] - $quantity;
-    
-    $stmt_delete = $conn->prepare("DELETE FROM purchase WHERE Sno=?");
-    $stmt_delete->bind_param("i", $sno);
-    
-    $stmt_update_inventory = $conn->prepare("UPDATE inventory SET Quantity=? WHERE ProductID=?");
-    $stmt_update_inventory->bind_param("ii", $newQuantity, $productId);
-    
-    if ($stmt_delete->execute() && $stmt_update_inventory->execute()) {
-        $_SESSION['message'] = 'Purchase deleted successfully!';
-        header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
-        exit();
-    } else {
-        $_SESSION['error'] = 'Error deleting purchase!';
-    }
-}
 
 function sanitizeInput($data) {
     return htmlspecialchars(stripslashes(trim($data)));
@@ -130,7 +98,7 @@ function sanitizeInput($data) {
 <body>
 <div class="container ff mobile-card">
     <br>
-    <button class="btn btn-outline-secondary" onclick="window.location.href='../index.php'"><</button>
+    <button class="btn btn-outline-secondary" onclick="window.location.href='./index.php'"><</button>
     <br>
     <h1>Purchase</h1>
     <?php
@@ -143,56 +111,76 @@ function sanitizeInput($data) {
         unset($_SESSION['error']);
     }
     ?>
-    <div>
-        <button class="btn btn-outline-dark"" onclick="window.location.href='./addNew.php'">Purchase New Product</button>
-        <button class="btn btn-dark" onclick="window.location.href='./addExisting.php'">Purchase Existing Product</button>
-        <hr>
-    </div>
+    <form class="row gy-2 gx-3 align-items-center" action="addExisting.php" method="POST">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>ProductID</th>
+                    <th>Product Name</th>
+                    <th>Supplier Id</th>
+                    <th>Description</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <!-- Product ID -->
+                        <input type="text" class="form-control" name="ProductID" placeholder="Product Id" list="ProductIDList" required onchange="updateProductName(this)">
+                        <datalist id="ProductIDList">
+                            <?php
+                                $sql_data = "SELECT * FROM inventory";
+                                $result_data = mysqli_query($conn, $sql_data);
+                                while ($row = mysqli_fetch_assoc($result_data)) {
+                                    echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductName'] . "</option>";
+                                }
+                            ?>
+                        </datalist>
+                    </td>
+                    <td>
+                        <!-- Product Name -->
+                        <input type="text" class="form-control" name="ProductName" placeholder="Eg: Chalk">
+                    </td>
+                    <td>
+                        <!-- Supplier ID -->
+                        <input type="text" class="form-control" name="SupplierID" placeholder="Supplier Id" list="SupplierIDList" required>
+                        <datalist id="SupplierIDList">
+                            <?php
+                                $sql_data = "SELECT * FROM supplier";
+                                $result_data = mysqli_query($conn, $sql_data);
+                                while ($row = mysqli_fetch_assoc($result_data)) {
+                                    echo "<option value='" . $row['SupplierID'] . "'>" . $row['SupplierName'] . "</option>";
+                                }
+                            ?>
+                        </datalist>
+                    </td>
+                    <td>
+                        <!-- Description -->
+                        <textarea type="text" class="form-control" name="Description" placeholder="Description" required></textarea>
+                    </td>
+                    <td>
+                        <!-- Quantity -->
+                        <input type="number" class="form-control" name="Quantity" placeholder="Quantity" required>
+                    </td>
+                    <td>
+                        <!-- Unit Price -->
+                        <input type="number" class="form-control" name="UnitPrice" placeholder="Unit Price" required>
+                    </td>
+                    <td>
+                        <!-- Purchase Date -->
+                        <input type="date" class="form-control" name="PurchaseDate" required>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div>
+            <button type="submit" class="btn btn-primary" name="submitButton">Submit</button>
+        </div>
+    </form>
     <br><br>
-    <h1>Purchase History</h1>
-    <?php
-    // Retrieve purchase data from the database
-    $sql = "SELECT * FROM purchase";
-    $result = mysqli_query($conn, $sql);
-
-    // Display purchase information in a table
-    echo '<table class="table table-hover">';
-    echo '<thead>';
-    echo '<tr class="table-light">';
-    echo '<th>S.NO</th>';
-    echo '<th>Product Id</th>';
-    echo '<th>Product Name</th>';
-    echo '<th>Supplier Id</th>';
-    echo '<th>Description</th>';
-    echo '<th>Quantity</th>';
-    echo '<th>Unit Price</th>';
-    echo '<th>Amount</th>';
-    echo '<th>Purchase Date</th>';
-    echo '<th></th>';
-    echo '</tr>';
-    echo '</thead>';
-    echo '<tbody>';
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        echo '<tr>';
-        echo '<form action="index.php" method="POST" onsubmit="return confirmSubmission()">';
-        echo '<td><input type="hidden" value="' . $row['Sno'] . '" name="Sno">'. $row['Sno'] . '</td>';
-        echo '<td><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</td>';
-        echo '<td><input type="hidden" value="' . $row['ProductName'] . '" name="ProductName">' . $row['ProductName'] . '</td>';
-        echo '<td><input type="hidden" value="' . $row['SupplierID'] . '" name="SupplierID">'. $row['SupplierID'] . '</td>';
-        echo '<td><input type="hidden" value="' . $row['Description'] . '" name="Description">' . $row['Description'] . '</td>';
-        echo '<td><input type="hidden" value="' . $row['Quantity'] . '" name="Quantity">' . number_format($row['Quantity']) . '</td>';
-        echo '<td><input type="hidden" value="' . $row['UnitPrice'] . '" name="UnitPrice">' . number_format($row['UnitPrice']) . '</td>';
-        echo '<td><input type="hidden" value="' . $row['Amount'] . '" name="Amount">' . number_format($row['Amount']) . '</td>';
-        echo '<td>' . $row['PurchaseDate'] . '</td>';
-        echo '<td><button type="submit" name="deleteButton" class="btn border-0">🗑️</button></td>';
-        echo '</form>';
-        echo '</tr>';
-    }
-
-    echo '</tbody>';
-    echo '</table>';
-    ?>
+    
 </div>
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-pZt4J9qAwA/V4xODCoT2COVIKCSN5DyQqV3+hMIFlFgSCJTVW6cRB/gaTk5e2lfd" crossorigin="anonymous"></script> -->
 <script>
