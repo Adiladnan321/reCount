@@ -193,7 +193,7 @@
                     </td>
                 </tr>
             </tbody>
-        </table>
+        </table>    
         <div>
             <button type="submit" class="btn btn-primary" name="submitButton">Submit</button>
         </div>
@@ -215,10 +215,12 @@
         <?php
             // $user1=true;
             // Retrieve student data from the database
-            $sql = "SELECT * FROM sale";
+            $sql = "SELECT s.*,c.CustomerName
+             FROM sale s
+             join customer c on s.CustomerID=c.CustomerID";
             $result = mysqli_query($conn, $sql);
             // Display student information in a table
-            echo '<table class="table table-hover">';
+            echo '<table class="table table-hover table-container">';
             echo '<thead>';
             echo '<tr class="table-light">';
             echo '<th>S.NO</th>';
@@ -241,7 +243,9 @@
                 echo '<td><input type="hidden" value="' . $row['Sno'] . '" name="Sno">'. $row['Sno'] . '</td>';
                 echo '<td><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</td>';
                 echo '<td><input type="hidden" value="' . $row['ProductName'] . '" name="ProductName">' . $row['ProductName'] . '</td>';
-                echo '<td><input type="hidden" value="' . $row['CustomerID'] . '" name="CustomerID">'. $row['CustomerID'] . '</td>';
+                // echo '<td><input type="hidden" value="' . $row['CustomerID'] . '" name="CustomerID">'. $row['CustomerID'] . '</td>';
+                echo '<td title="' . htmlspecialchars($row['CustomerName']) . '">' . $row['CustomerID'] . '</td>';
+
                 echo '<td><input type="hidden" value="' . $row['Description'] . '" name="Description">' . $row['Description'] . '</td>';
                 echo '<td><input type="hidden" value="' . $row['Quantity'] . '" name="Quantity">' . number_format($row['Quantity']) . '</td>';
                 echo '<td><input type="hidden" value="' . $row['UnitPrice'] . '" name="UnitPrice">' . number_format($row['UnitPrice']) . '</td>';

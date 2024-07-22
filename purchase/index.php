@@ -143,79 +143,18 @@ function sanitizeInput($data) {
         unset($_SESSION['error']);
     }
     ?>
-    <form class="row gy-2 gx-3 align-items-center" action="index.php" method="POST">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ProductID</th>
-                    <th>Product Name</th>
-                    <th>Supplier Id</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <!-- Product ID -->
-                        <input type="text" class="form-control" name="ProductID" placeholder="Product Id" list="ProductIDList" required onchange="updateProductName(this)">
-                        <datalist id="ProductIDList">
-                            <?php
-                                $sql_data = "SELECT * FROM inventory";
-                                $result_data = mysqli_query($conn, $sql_data);
-                                while ($row = mysqli_fetch_assoc($result_data)) {
-                                    echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductName'] . "</option>";
-                                }
-                            ?>
-                        </datalist>
-                    </td>
-                    <td>
-                        <!-- Product Name -->
-                        <input type="text" class="form-control" name="ProductName" placeholder="Eg: Chalk">
-                    </td>
-                    <td>
-                        <!-- Supplier ID -->
-                        <input type="text" class="form-control" name="SupplierID" placeholder="Supplier Id" list="SupplierIDList" required>
-                        <datalist id="SupplierIDList">
-                            <?php
-                                $sql_data = "SELECT * FROM supplier";
-                                $result_data = mysqli_query($conn, $sql_data);
-                                while ($row = mysqli_fetch_assoc($result_data)) {
-                                    echo "<option value='" . $row['SupplierID'] . "'>" . $row['SupplierName'] . "</option>";
-                                }
-                            ?>
-                        </datalist>
-                    </td>
-                    <td>
-                        <!-- Description -->
-                        <textarea type="text" class="form-control" name="Description" placeholder="Description" required></textarea>
-                    </td>
-                    <td>
-                        <!-- Quantity -->
-                        <input type="number" class="form-control" name="Quantity" placeholder="Quantity" required>
-                    </td>
-                    <td>
-                        <!-- Unit Price -->
-                        <input type="number" class="form-control" name="UnitPrice" placeholder="Unit Price" required>
-                    </td>
-                    <td>
-                        <!-- Purchase Date -->
-                        <input type="date" class="form-control" name="PurchaseDate" required>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <div>
-            <button type="submit" class="btn btn-primary" name="submitButton">Submit</button>
-        </div>
-    </form>
+    <div>
+        <button class="btn btn-outline-dark"" onclick="window.location.href='./addNew.php'">Purchase New Product</button>
+        <button class="btn btn-dark" onclick="window.location.href='./addExisting.php'">Purchase Existing Product</button>
+        <button class="btn btn-outline-dark" onclick="window.location.href='../porder/index.php'">Creat a Purchase Order</button>
+        <hr>
+    </div>
     <br><br>
     <h1>Purchase History</h1>
     <?php
-    // Retrieve purchase data from the database
-    $sql = "SELECT * FROM purchase";
+    $sql = "SELECT p.*, s.SupplierName 
+    FROM purchase p 
+    JOIN supplier s ON p.SupplierID = s.SupplierID";
     $result = mysqli_query($conn, $sql);
 
     // Display purchase information in a table
@@ -237,24 +176,26 @@ function sanitizeInput($data) {
     echo '<tbody>';
 
     while ($row = mysqli_fetch_assoc($result)) {
-        echo '<tr>';
-        echo '<form action="index.php" method="POST" onsubmit="return confirmSubmission()">';
-        echo '<td><input type="hidden" value="' . $row['Sno'] . '" name="Sno">'. $row['Sno'] . '</td>';
-        echo '<td><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</td>';
-        echo '<td><input type="hidden" value="' . $row['ProductName'] . '" name="ProductName">' . $row['ProductName'] . '</td>';
-        echo '<td><input type="hidden" value="' . $row['SupplierID'] . '" name="SupplierID">'. $row['SupplierID'] . '</td>';
-        echo '<td><input type="hidden" value="' . $row['Description'] . '" name="Description">' . $row['Description'] . '</td>';
-        echo '<td><input type="hidden" value="' . $row['Quantity'] . '" name="Quantity">' . number_format($row['Quantity']) . '</td>';
-        echo '<td><input type="hidden" value="' . $row['UnitPrice'] . '" name="UnitPrice">' . number_format($row['UnitPrice']) . '</td>';
-        echo '<td><input type="hidden" value="' . $row['Amount'] . '" name="Amount">' . number_format($row['Amount']) . '</td>';
-        echo '<td>' . $row['PurchaseDate'] . '</td>';
-        echo '<td><button type="submit" name="deleteButton" class="btn border-0">🗑️</button></td>';
-        echo '</form>';
-        echo '</tr>';
+    echo '<tr>';
+    echo '<form action="index.php" method="POST" onsubmit="return confirmSubmission()">';
+    echo '<td><input type="hidden" value="' . $row['Sno'] . '" name="Sno">'. $row['Sno'] . '</td>';
+    echo '<td><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</td>';
+    echo '<td><input type="hidden" value="' . $row['ProductName'] . '" name="ProductName">' . $row['ProductName'] . '</td>';
+    echo '<td title="' . htmlspecialchars($row['SupplierName']) . '"><input type="hidden" value="' . $row['SupplierID'] . '" name="SupplierID">'. $row['SupplierID'] . '</td>';
+    echo '<td><input type="hidden" value="' . $row['Description'] . '" name="Description">' . $row['Description'] . '</td>';
+    echo '<td><input type="hidden" value="' . $row['Quantity'] . '" name="Quantity">' . number_format($row['Quantity'], 2) . '</td>';
+    echo '<td><input type="hidden" value="' . $row['UnitPrice'] . '" name="UnitPrice">' . number_format($row['UnitPrice'], 2) . '</td>';
+    echo '<td><input type="hidden" value="' . $row['Amount'] . '" name="Amount">' . number_format($row['Amount'], 2) . '</td>';
+    echo '<td>' . $row['PurchaseDate'] . '</td>';
+    echo '<td><button type="submit" name="deleteButton" class="btn border-0">🗑️</button></td>';
+    echo '</form>';
+    echo '</tr>';
     }
-
     echo '</tbody>';
     echo '</table>';
+
+    // echo '</tbody>';
+    // echo '</table>';
     ?>
 </div>
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-pZt4J9qAwA/V4xODCoT2COVIKCSN5DyQqV3+hMIFlFgSCJTVW6cRB/gaTk5e2lfd" crossorigin="anonymous"></script> -->

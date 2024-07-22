@@ -84,18 +84,23 @@
 
 
     // Retrieve inventory data from the database
-    $sql = "SELECT * FROM inventory";
+    // Retrieve inventory data with supplier name from the database
+    $sql = "SELECT i.*, s.SupplierName 
+    FROM inventory i 
+    JOIN supplier s ON i.SupplierID = s.SupplierID";
     $result = $conn->query($sql);
 
     // Calculate total inventory value
     $sql_totalVal = "SELECT SUM(Amount) AS TotalValue FROM inventory";
     $resultVal = $conn->query($sql_totalVal);
     $totalVal = $resultVal->fetch_assoc();
+
     // Display total inventory value
     echo '<br>';
-    echo '<h4>Total Inventory Value: QR '  . number_format($totalVal['TotalValue']) . '</h4><br><br>';
+    echo '<h4>Total Inventory Value: QR '  . number_format($totalVal['TotalValue'], 2) . '</h4><br><br>';
+
     // Display inventory in a table
-    echo '<table class="table  table-hover table-container">';
+    echo '<table class="table table-hover table-container">';
     echo '<thead>';
     echo '<tr class="table-light">';
     echo '<th scope="col" class="fixed-column">Product Id</th>';
@@ -113,24 +118,25 @@
     echo '<tbody>';
 
     while ($row = $result->fetch_assoc()) {
-        echo '<tr>';
-        echo '<form action="index.php" method="POST">';
-        echo '<td class="fixed-column"><button name="viewButton" class="btn border-0"><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</button></td>';
-        echo '<td><button name="viewButton" class="btn border-0">' . $row['ProductName'] . '</button></td>';
-        echo '<td>' . $row['SupplierID'] . '</td>';
-        echo '<td>' . $row['Description'] . '</td>';
-        echo '<td>' . number_format($row['Quantity']) . '</td>';
-        echo '<td>' . number_format($row['UnitPrice']) . '</td>';
-        echo '<td>' . number_format($row['Amount']) . '</td>';
-        echo '<td><input type="number" value="' . $row['ReorderLevel'] . '" name="reorder" class="form-control"></td>';
-        echo '<td><button name="editButton" class="btn btn-outline-primary">✔️</button></td>';
-        echo '</form>';
-        echo '<td>' . $row['Status'] . '</td>';
-        echo '</tr>';
+    echo '<tr>';
+    echo '<form action="index.php" method="POST">';
+    echo '<td class="fixed-column"><button name="viewButton" class="btn border-0"><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</button></td>';
+    echo '<td><button name="viewButton" class="btn border-0">' . $row['ProductName'] . '</button></td>';
+    echo '<td title="' . htmlspecialchars($row['SupplierName']) . '">' . $row['SupplierID'] . '</td>';
+    echo '<td>' . $row['Description'] . '</td>';
+    echo '<td>' . number_format($row['Quantity'], 2) . '</td>';
+    echo '<td>' . number_format($row['UnitPrice'], 2) . '</td>';
+    echo '<td>' . number_format($row['Amount'], 2) . '</td>';
+    echo '<td><input type="number" value="' . $row['ReorderLevel'] . '" name="reorder" class="form-control"></td>';
+    echo '<td><button name="editButton" class="btn btn-outline-primary">✔️</button></td>';
+    echo '</form>';
+    echo '<td>' . $row['Status'] . '</td>';
+    echo '</tr>';
     }
 
     echo '</tbody>';
     echo '</table>';
+
     $conn->close();
     ?>
 </div>

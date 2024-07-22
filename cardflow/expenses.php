@@ -133,9 +133,10 @@
             $vehicle_maintenance = $_POST['vehicle_maintenance'];
             $salary = $_POST['salary'];
             $others = $_POST['others'];
+            $description = $_POST['description'];
 
-            $sql = $conn->prepare("INSERT INTO expense (date, fuel, vehicle_maintenance, salary, others) VALUES (?, ?, ?, ?, ?)");
-            $sql->bind_param("sdddd", $date, $fuel, $vehicle_maintenance, $salary, $others);
+            $sql = $conn->prepare("INSERT INTO expense (date, fuel, vehicle_maintenance, salary, others,description) VALUES (?, ?, ?, ?, ?,?)");
+            $sql->bind_param("sdddds", $date, $fuel, $vehicle_maintenance, $salary, $others,$description);
             $sql->execute();
         }
 
@@ -259,11 +260,14 @@
                 <span class="description">Others:</span>
                 <input type="number" step="0.01" class="form-control" name="others" required style="width: 200px;">
             </div>
+            <div class="item">
+                <span class="description">Description:</span>
+                <input type="text" class="form-control" name="description" required style="width: 200px;">
+            </div>
             <hr>
             <div class="item" style="text-align: center;">
                 <input type="submit" name="add_expense" value="Add Expense" class="expensebutton">
             </div>
-            <br>
         </form>
     </div>
 </body>
