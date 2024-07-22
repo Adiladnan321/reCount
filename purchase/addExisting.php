@@ -1,4 +1,3 @@
-
 <?php 
 session_start();
 if (!isset($_SESSION["user"])) {
@@ -163,11 +162,11 @@ function sanitizeInput($data) {
                     </td>
                     <td>
                         <!-- Quantity -->
-                        <input type="number" class="form-control" name="Quantity" placeholder="Quantity" required MIN="0">
+                        <input type="number" class="form-control" name="Quantity" placeholder="Quantity" required>
                     </td>
                     <td>
                         <!-- Unit Price -->
-                        <input type="number" class="form-control" name="UnitPrice" placeholder="Unit Price" required MIN="0" STEP="0.01">
+                        <input type="number" class="form-control" name="UnitPrice" placeholder="Unit Price" required>
                     </td>
                     <td>
                         <!-- Purchase Date -->
