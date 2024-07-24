@@ -118,21 +118,34 @@
     echo '<tbody>';
 
     while ($row = $result->fetch_assoc()) {
-    echo '<tr>';
-    echo '<form action="index.php" method="POST">';
-    echo '<td class="fixed-column"><button name="viewButton" class="btn border-0"><input type="hidden" value="' . $row['ProductID'] . '" name="ProductID">' . $row['ProductID'] . '</button></td>';
-    echo '<td><button name="viewButton" class="btn border-0">' . $row['ProductName'] . '</button></td>';
-    echo '<td title="' . htmlspecialchars($row['SupplierName']) . '">' . $row['SupplierID'] . '</td>';
-    echo '<td>' . $row['Description'] . '</td>';
-    echo '<td>' . number_format($row['Quantity'], 2) . '</td>';
-    echo '<td>' . number_format($row['UnitPrice'], 2) . '</td>';
-    echo '<td>' . number_format($row['Amount'], 2) . '</td>';
-    echo '<td><input type="number" value="' . $row['ReorderLevel'] . '" name="reorder" class="form-control"></td>';
-    echo '<td><button name="editButton" class="btn btn-outline-primary">✔️</button></td>';
-    echo '</form>';
-    echo '<td>' . $row['Status'] . '</td>';
-    echo '</tr>';
+        $productID = $row['ProductID'];
+        
+        // Query to get the sum of Amount from the ibatch table for the same ProductID
+        $sumQuery = "SELECT SUM(Amount) AS totalAmount FROM ibatch WHERE ProductID = ?";
+        $stmt = $conn->prepare($sumQuery);
+        $stmt->bind_param("i", $productID);
+        $stmt->execute();
+        $sumResult = $stmt->get_result();
+        $sumRow = $sumResult->fetch_assoc();
+        $totalAmount = $sumRow['totalAmount'] ? number_format($sumRow['totalAmount'], 2) : '0.00';
+        
+        echo '<tr>';
+        echo '<form action="index.php" method="POST">';
+        echo '<td class="fixed-column"><button name="viewButton" class="btn border-0"><input type="hidden" value="' . $productID . '" name="ProductID">' . $productID . '</button></td>';
+        echo '<td><button name="viewButton" class="btn border-0">' . $row['ProductName'] . '</button></td>';
+        echo '<td title="' . htmlspecialchars($row['SupplierName']) . '">' . $row['SupplierID'] . '</td>';
+        echo '<td>' . $row['Description'] . '</td>';
+        echo '<td>' . number_format($row['Quantity'], 2) . '</td>';
+        echo '<td>' . number_format($row['UnitPrice'], 2) . '</td>';
+        // echo '<td>' . number_format($row['Amount'], 2) . '</td>';
+        echo '<td>' . $totalAmount . '</td>'; // Display the total amount
+        echo '<td><input type="number" value="' . $row['ReorderLevel'] . '" name="reorder" class="form-control"></td>';
+        echo '<td><button name="editButton" class="btn btn-outline-primary">✔️</button></td>';
+        echo '</form>';
+        echo '<td>' . $row['Status'] . '</td>';
+        echo '</tr>';
     }
+    
 
     echo '</tbody>';
     echo '</table>';

@@ -51,7 +51,7 @@ if (isset($_SESSION['Pr'])) {
     <?php
 
     // Retrieve inventory data from the database
-    $sql = "SELECT * FROM inventory WHERE ProductID='$u'";
+    $sql = "SELECT * FROM ibatch WHERE ProductID='$u'";
     $result = $conn->query($sql);
 
     echo '<br>';
@@ -67,13 +67,14 @@ if (isset($_SESSION['Pr'])) {
     echo '<th scope="col">Quantity</th>';
     echo '<th scope="col">Unit Price</th>';
     echo '<th scope="col">Amount</th>';
-    echo '<th scope="col">Reorder Level</th>';
-    echo '<th scope="col">Status</th>';
+    // echo '<th scope="col">Reorder Level</th>';
+    // echo '<th scope="col">Status</th>';
     echo '</tr>';
     echo '</thead>';
     echo '<tbody>';
 
     while ($row = $result->fetch_assoc()) {
+        
         echo '<tr>';
         echo '<td>' . $row['ProductID'] . '</td>';
         echo '<td>' . $row['ProductName'] . '</td>';
@@ -82,11 +83,24 @@ if (isset($_SESSION['Pr'])) {
         echo '<td>' . $row['Quantity'] . '</td>';
         echo '<td>' . $row['UnitPrice'] . '</td>';
         echo '<td>' . $row['Amount'] . '</td>';
-        echo '<td>' . $row['ReorderLevel'] . '</td>';
-        echo '<td>' . $row['Status'] . '</td>';
         echo '</tr>';
     }
 
+    $sql = "SELECT ReorderLevel,Status FROM inventory WHERE ProductID='$u'";
+    $result = $conn->query($sql);
+    while ($row = $result->fetch_assoc()) {
+        echo '<table class="table table-striped table-hover">';
+        echo '<tr>';
+        echo '<th scope="col">Reorder Level</th>';
+        echo '<td>' . $row['ReorderLevel'] . '</td>';
+        echo'</tr>';
+        echo'<tr>';
+
+        echo '<th scope="col">Status</th>';
+        echo '<td>' . $row['Status'] . '</td>';
+        echo '</tr>';
+        echo '</table>';
+    }
     echo '</tbody>';
     echo '</table>';
     echo '<br><br>';
