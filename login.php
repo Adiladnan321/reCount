@@ -145,7 +145,7 @@ if(isset($_POST['login'])||isset($_SESSION["user"])){
             <!-- <img src="logob.png"> -->
         </div>
         <div class="login">
-            <img src="logob.png" style="width:12rem" class="logo">
+            <img src="./assets/logob.png" style="width:12rem" class="logo">
             <h2>Sign in to reCount</h2>
             <div class="login--input">
                 <div class="login--with--google">
