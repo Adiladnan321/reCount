@@ -48,6 +48,11 @@ function handlePurchaseSubmit($conn) {
         $stmt_purchase = $conn->prepare("INSERT INTO purchase (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, PurchaseDate) VALUES (?, ?, ?, ?, ?, ?, ?)");
         $stmt_purchase->bind_param("isisids", $productId, $productName, $supplierId, $description, $quantity, $unitPrice, $purchaseDate);
         $stmt_purchase->execute();
+
+        // Insert into ibatch table
+        $stmt_insert = $conn->prepare("INSERT INTO ibatch (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt_insert->bind_param("isisidds", $productId, $productName, $supplierId, $description, $quantity, $unitPrice, $amount, $purchaseDate);
+        $stmt_insert->execute();
         $_SESSION['message'] = 'Purchase added successfully!';
     }
     header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
@@ -155,15 +160,15 @@ function sanitizeInput($data) {
                     </td>
                     <td>
                         <!-- Description -->
-                        <textarea type="text" class="form-control" name="Description" placeholder="Description" required></textarea>
+                        <textarea type="text" class="form-control" name="Description" placeholder="Description" required min="0" step="0.01"></textarea>
                     </td>
                     <td>
                         <!-- Quantity -->
-                        <input type="number" class="form-control" name="Quantity" placeholder="Quantity" required>
+                        <input type="number" class="form-control" name="Quantity" placeholder="Quantity" required min="0" step="0.01">
                     </td>
                     <td>
                         <!-- Unit Price -->
-                        <input type="number" class="form-control" name="UnitPrice" placeholder="Unit Price" required>
+                        <input type="number" class="form-control" name="UnitPrice" placeholder="Unit Price" required min="0" step="0.01">
                     </td>
                     <td>
                         <!-- Purchase Date -->
