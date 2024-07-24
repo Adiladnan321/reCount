@@ -5,6 +5,131 @@
         header("Location: login.php");
     }
     require_once '../database.php';
+    function processSale($conn, $productId, $saleQuantity) {
+        $query = "SELECT BatchID,  Quantity FROM ibatch WHERE productID = ? AND Quantity > 0 ORDER BY date ASC";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("i", $productId);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $remainingQuantity = $saleQuantity;
+
+        while ($row = $result->fetch_assoc()) {
+            if ($remainingQuantity <= 0) break;
+
+            if ($row['Quantity'] >= $remainingQuantity) {
+                $updateQuery = "UPDATE ibatch SET Quantity = Quantity - ? WHERE BatchID = ?";
+                $updateStmt = $conn->prepare($updateQuery);
+                $updateStmt->bind_param("ii", $remainingQuantity, $row['BatchID']);
+                $updateStmt->execute();
+
+                $remainingQuantity = 0;
+            } else {
+                $updateQuery = "UPDATE ibatch SET Quantity = 0 WHERE BatchID = ?";
+                $updateStmt = $conn->prepare($updateQuery);
+                $updateStmt->bind_param("i", $row['BatchID']);
+                $updateStmt->execute();
+
+                $remainingQuantity -= $row['Quantity'];
+            }
+        }
+
+        if ($remainingQuantity > 0) {
+            throw new Exception("Not enough inventory to fulfill the sale");
+        }
+    }
+
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="styles.css">
+    <title>Sell</title>
+    <style>
+
+        @media (min-width:1000px) {
+            
+            body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+                margin: 5vh;
+                padding: 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .ff{
+                background-color: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    
+    <?php
+ 
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitButton'])) {
+        // Retrieving form data
+        $productId = $_POST['ProductID'];
+        $productName = $_POST['ProductName'];
+        $CustomerID = $_POST['CustomerID'];
+        $quantity = $_POST['Quantity'];
+        $newUnitPrice = $_POST['UnitPrice'];
+        $SaleDate = $_POST['SaleDate'];
+        $Description=$_POST['Description'];
+        $paymentMethod=$_POST['paymentMethod'];
+        // Calculate total amount
+        $amount = $newUnitPrice * $quantity;
+        
+        try {
+            // Start a transaction
+            $conn->begin_transaction();
+
+            // Process the sale (this will update ibatch quantities)
+            processSale($conn, $productId, $quantity); 
+
+            // If processSale doesn't throw an exception, proceed to record the sale
+            $sql_purchase = "INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate, modifiedBy, paymentMethod) 
+                              VALUES ('$productId', '$productName', '$CustomerID', '$Description', '$quantity', '$newUnitPrice', '$amount', '$SaleDate', '$user', '$paymentMethod')";
+
+            if ($conn->query($sql_purchase) === TRUE) {
+                // Commit transaction if sale recording was successful
+                $conn->commit();
+                echo '<div class="alert alert-success" role="alert">Sale Successful!</div>'; 
+            } else {
+                // Rollback if there's an error inserting the sale
+                $conn->rollback();
+                echo '<div class="alert alert-danger" role="alert">Error processing sale! ' . $conn->error . '</div>';
+            }
+            $sql = "SELECT COUNT(*) as rowCount FROM ibatch WHERE ProductID='$productId'";
+            $countResult = $conn->query($sql);
+            $row = $countResult->fetch_assoc();
+
+            if ($row['rowCount'] > 1) {
+                $sql = "SELECT * FROM ibatch WHERE ProductID='$productId' AND quantity=0";
+                $result = $conn->query($sql);
+
+                while ($row1 = $result->fetch_assoc()) {
+                    $batchID = $row1['BatchID'];
+                    $sql_drow = "DELETE FROM ibatch WHERE BatchID='$batchID'";
+                    $conn->query($sql_drow);
+                }
+            }
+
+            
+        } catch (Exception $e) {
+            // Rollback if processSale throws an exception (not enough inventory)
+            $conn->rollback();
+            echo '<div class="alert alert-danger" role="alert">' . $e->getMessage() . '</div>'; 
+        }
+    }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -43,11 +168,12 @@
     <br>
     <h1>Sell</h1>
     <?php
+    
     // Database connection
     // require_once 'database.php';
-
+        
     if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['submitButton'])) {
-    // Retrieving form data
+        // Retrieving form data
         $productId = $_POST['ProductID'];
         $productName = $_POST['ProductName'];
         $CustomerID = $_POST['CustomerID'];
@@ -66,36 +192,33 @@
         if (mysqli_num_rows($result_check) > 0) {
             // Product exists, update inventory
             $row = mysqli_fetch_assoc($result_check);
-            $newQuantity = $row['Quantity'] - $quantity;
-            $unitPrice=$row['UnitPrice'];
-            $newAmount = $newQuantity * $unitPrice;
-            if($newQuantity<0){
-                echo '<div class="alert alert-danger" role="alert">Not enough Quantity!</div>';
-            }
-            else{
+            $currentQuantity = $row['Quantity'];
+            if($quantity > $currentQuantity){
+                echo '<div class="alert alert-danger" role="alert">Not enough Quantity in Inventory!</div>';
+            } else {
+                $newQuantity = $currentQuantity - $quantity;
+                $unitPrice=$row['UnitPrice'];
+                $newAmount = $newQuantity * $unitPrice;
+        
                 $sql_inventory = "UPDATE inventory SET Quantity = '$newQuantity', Amount = '$newAmount' WHERE ProductID = '$productId'";
                 $sql_purchase = "INSERT INTO sale (ProductID, ProductName, CustomerID, Description, Quantity, UnitPrice, Amount, SaleDate, modifiedBy, paymentMethod) VALUES ('$productId', '$productName', '$CustomerID', '$Description', '$quantity', '$newUnitPrice', '$amount', '$SaleDate','$user','$paymentMethod')";
-                mysqli_query($conn, $sql_inventory);
-                mysqli_query($conn, $sql_purchase);
+                
+                if(mysqli_query($conn, $sql_inventory) && mysqli_query($conn, $sql_purchase)) {
+                    echo '<div class="alert alert-success" role="alert">Sale Successful!</div>'; 
+                } else {
+                    echo '<div class="alert alert-danger" role="alert">Error processing sale!</div>';
+                }
             }
         } else {
             // Product does not exist, insert into inventory
-            echo '<div class="alert alert-danger" role="alert">Product Doesnot exists!</div>';
+            echo '<div class="alert alert-danger" role="alert">Product Does not exist!</div>';
         }
-        // header("Location: {$_SERVER['PHP_SELF']}?submitted=true");
-        // exit();
-        // Insert into purchase table
-        
-        // Execute queries
-        
-        // Close connection
-        // mysqli_close($conn);
     }
+
     if($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['deleteButton'])){
         $Sno=intval($_POST['Sno']);
-        $ProductID=intval($_POST['Quantity']);
+        $ProductID=intval($_POST['ProductID']);
         $Quantity=intval($_POST['Quantity']);
-        $Amount=floatval($_POST['Amount']);
 
         // Fetch current quantity and amount from inventory
         $stmt_get_inventory = $conn->prepare("SELECT Quantity, UnitPrice FROM inventory WHERE ProductID=?");
@@ -114,9 +237,9 @@
         $stmt_update_inventory->bind_param("idi", $newQuantity, $newAmount, $ProductID);
         
         if ($stmt_delete->execute() && $stmt_update_inventory->execute()) {
-            echo '<div class="alert alert-success" role="alert">Sell deleted successfully!</div>';
+            echo '<div class="alert alert-success" role="alert">Sale deleted successfully!</div>';
         } else {
-            echo '<div class="alert alert-danger" role="alert">Error deleting purchase!</div>';
+            echo '<div class="alert alert-danger" role="alert">Error deleting sale!</div>';
         }
     }
     ?>
@@ -213,6 +336,7 @@
             </select><br>
         </form>
         <?php
+        
             // $user1=true;
             // Retrieve student data from the database
             $sql = "SELECT s.*,c.CustomerName
@@ -288,3 +412,4 @@
 </script>
 </body>
 </html>
+
