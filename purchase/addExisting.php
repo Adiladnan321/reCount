@@ -147,7 +147,7 @@ function sanitizeInput($data) {
                     </td>
                     <td>
                         <!-- Product Name -->
-                        <input type="text" class="form-control" name="ProductName" placeholder="Eg: Chalk">
+                        <input type="text" class="form-control" name="ProductName" placeholder="Eg: Chalk" readonly>
                     </td>
                     <td>
                         <!-- Supplier ID -->
