@@ -48,6 +48,12 @@ function handlePurchaseSubmit($conn) {
         $stmt_purchase->bind_param("isisids", $productId, $productName, $supplierId, $description, $quantity, $unitPrice, $purchaseDate);
         $stmt_purchase->execute();
         $_SESSION['message'] = 'Purchase added successfully!';
+
+         // Insert into ibatch table
+         $stmt_insert = $conn->prepare("INSERT INTO ibatch (ProductID, ProductName, SupplierID, Description, Quantity, UnitPrice, Amount, date) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+         $stmt_insert->bind_param("isisidds", $productId, $productName, $supplierId, $description, $quantity, $unitPrice, $amount, $purchaseDate);
+         $stmt_insert->execute();
+         $_SESSION['message'] = 'Purchase added successfully!';
     } else {
         // Product does not exist, insert into inventory
         // Removed the Amount column from the INSERT statement
@@ -162,11 +168,11 @@ function sanitizeInput($data) {
                     </td>
                     <td>
                         <!-- Quantity -->
-                        <input type="number" class="form-control" name="Quantity" placeholder="Quantity" required>
+                        <input type="number" class="form-control" name="Quantity" placeholder="Quantity" required min="0">
                     </td>
                     <td>
                         <!-- Unit Price -->
-                        <input type="number" class="form-control" name="UnitPrice" placeholder="Unit Price" required>
+                        <input type="number" class="form-control" name="UnitPrice" placeholder="Unit Price" required min="0" step="0.01">
                     </td>
                     <td>
                         <!-- Purchase Date -->
