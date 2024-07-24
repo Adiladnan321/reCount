@@ -143,77 +143,16 @@ function sanitizeInput($data) {
         unset($_SESSION['error']);
     }
     ?>
-    <form class="row gy-2 gx-3 align-items-center" action="index.php" method="POST">
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>ProductID</th>
-                    <th>Product Name</th>
-                    <th>Supplier Id</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>
-                        <!-- Product ID -->
-                        <input type="text" class="form-control" name="ProductID" placeholder="Product Id" list="ProductIDList" required onchange="updateProductName(this)">
-                        <datalist id="ProductIDList">
-                            <?php
-                                $sql_data = "SELECT * FROM inventory";
-                                $result_data = mysqli_query($conn, $sql_data);
-                                while ($row = mysqli_fetch_assoc($result_data)) {
-                                    echo "<option value='" . $row['ProductID'] . "'>" . $row['ProductName'] . "</option>";
-                                }
-                            ?>
-                        </datalist>
-                    </td>
-                    <td>
-                        <!-- Product Name -->
-                        <input type="text" class="form-control" name="ProductName" placeholder="Eg: Chalk">
-                    </td>
-                    <td>
-                        <!-- Supplier ID -->
-                        <input type="text" class="form-control" name="SupplierID" placeholder="Supplier Id" list="SupplierIDList" required>
-                        <datalist id="SupplierIDList">
-                            <?php
-                                $sql_data = "SELECT * FROM supplier";
-                                $result_data = mysqli_query($conn, $sql_data);
-                                while ($row = mysqli_fetch_assoc($result_data)) {
-                                    echo "<option value='" . $row['SupplierID'] . "'>" . $row['SupplierName'] . "</option>";
-                                }
-                            ?>
-                        </datalist>
-                    </td>
-                    <td>
-                        <!-- Description -->
-                        <textarea type="text" class="form-control" name="Description" placeholder="Description" required></textarea>
-                    </td>
-                    <td>
-                        <!-- Quantity -->
-                        <input type="number" class="form-control" name="Quantity" placeholder="Quantity" required>
-                    </td>
-                    <td>
-                        <!-- Unit Price -->
-                        <input type="number" class="form-control" name="UnitPrice" placeholder="Unit Price" required>
-                    </td>
-                    <td>
-                        <!-- Purchase Date -->
-                        <input type="date" class="form-control" name="PurchaseDate" required>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-        <div>
-            <button type="submit" class="btn btn-primary" name="submitButton">Submit</button>
-        </div>
-    </form>
+    <div>
+        <button class="btn btn-outline-dark"" onclick="window.location.href='./addNew.php'">Purchase New Product</button>
+        <button class="btn btn-dark" onclick="window.location.href='./addExisting.php'">Purchase Existing Product</button>
+        <button class="btn btn-outline-dark" onclick="window.location.href='../porder/index.php'">Create a Purchase order</button>
+        <hr>
+    </div>
     <br><br>
     <h1>Purchase History</h1>
     <?php
+    // Retrieve purchase data from the database
     $sql = "SELECT p.*, s.SupplierName 
     FROM purchase p 
     JOIN supplier s ON p.SupplierID = s.SupplierID";
@@ -255,9 +194,6 @@ function sanitizeInput($data) {
     }
     echo '</tbody>';
     echo '</table>';
-
-    // echo '</tbody>';
-    // echo '</table>';
     ?>
 </div>
 <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-pZt4J9qAwA/V4xODCoT2COVIKCSN5DyQqV3+hMIFlFgSCJTVW6cRB/gaTk5e2lfd" crossorigin="anonymous"></script> -->
